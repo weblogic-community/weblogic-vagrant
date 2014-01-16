@@ -1,0 +1,66 @@
+---
+logoutput:                     &logoutput                     true
+
+
+# create 2 managed servers and assign them to the machines
+managed_servers_instances:
+   - clusterTwo:
+      global_parameters:
+         log_output:           *logoutput
+         weblogic_type:        "server"
+         script:               'createServer.py'
+         params:
+            - "listenPort       = 8002"
+            - "nodeMgrLogDir    = '/data/logs'"
+      wlsServer3_node1:
+         weblogic_object_name: "wlsServer3"
+         params:
+            - "javaArguments    = '-XX:PermSize=256m -XX:MaxPermSize=256m -Xms752m -Xmx752m -Dweblogic.Stdout=/data/logs/wlsServer3.out -Dweblogic.Stderr=/data/logs/wlsServer4_err.out'"
+            - "wlsServerName    = 'wlsServer3'"
+            - "machineName      = 'Node1'"
+            - "listenAddress    = '10.10.10.100'"
+      wlsServer4_node2:
+         weblogic_object_name: "wlsServer4"
+         params:
+            - "javaArguments    = '-XX:PermSize=256m -XX:MaxPermSize=256m -Xms752m -Xmx752m -Dweblogic.Stdout=/data/logs/wlsServer4.out -Dweblogic.Stderr=/data/logs/wlsServer4_err.out'"
+            - "wlsServerName    = 'wlsServer4'"
+            - "machineName      = 'Node2'"
+            - "listenAddress    = '10.10.10.200'"
+
+
+# create cluster and assign the managed servers
+cluster_instances:
+   - clusterTwo:
+      cluster_web2:
+         weblogic_object_name: "WebCluster2"
+         log_output:           *logoutput
+         weblogic_type:        "cluster"
+         script:               'createCluster.py'
+         params:
+            - "clusterName      = 'WebCluster2'"
+            - "clusterNodes     = 'wlsServer3,wlsServer4'"
+
+
+# create jms servers with a server,file persistence target
+jms_servers_instances:
+   - clusterTwo:
+      global_parameters:
+      jmsServerNode3:
+         log_output:           *logoutput
+         weblogic_type:        "jmsserver"
+         script:               'createJmsServer.py'
+         weblogic_object_name: "jmsServer3"
+         params:
+            - "target           = 'wlsServer3'"
+            - "jmsServerName    = 'jmsServer3'"
+            - "targetType       = 'Server'"
+      jmsServerNode4:
+         log_output:           *logoutput
+         weblogic_type:        "jmsserver"
+         script:               'createJmsServer.py'
+         weblogic_object_name: "jmsServer4"
+         params:
+            - "target           = 'wlsServer4'"
+            - "jmsServerName    = 'jmsServer4'"
+            - "targetType       = 'Server'"
+

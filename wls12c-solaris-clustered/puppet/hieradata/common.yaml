@@ -1,0 +1,80 @@
+---
+messageDefault: 'default'
+messageEnv:     'common'
+
+
+hosts:
+  'adminsol':
+    ip:                "10.10.10.10"
+    host_aliases:      - 'adminsol.example.com'
+                       - 'adminsol'
+  'nodesol1':
+    ip:                "10.10.10.100"
+    host_aliases:      - 'nodesol1.example.com'
+                       - 'nodesol1'
+  'nodesol2':
+    ip:                "10.10.10.200"
+    host_aliases:      - 'nodesol2.example.com'
+                       - 'nodesol2'
+
+# global WebLogic vars
+wls_oracle_base_home_dir: &wls_oracle_base_home_dir "/opt/oracle"
+wls_weblogic_user:        &wls_weblogic_user        "weblogic"
+wls_weblogic_home_dir:    &wls_weblogic_home_dir    "/opt/oracle/middleware12c/wlserver"
+wls_middleware_home_dir:  &wls_middleware_home_dir  "/opt/oracle/middleware12c"
+wls_version:              &wls_version              1212
+
+# global OS vars
+wls_os_user:              &wls_os_user              "oracle"
+wls_os_group:             &wls_os_group             "dba"
+wls_download_dir:         &wls_download_dir         "/data/install"
+wls_source:               &wls_source               "/vagrant"
+wls_jdk_home_dir:         &wls_jdk_home_dir         "/usr/jdk/jdk1.7.0_45"
+wls_log_dir:              &wls_log_dir              "/data/logs"
+
+
+#WebLogic installation variables 
+orawls::weblogic::version:              *wls_version
+orawls::weblogic::filename:             "wls_121200.jar"
+#orawls::weblogic::filename:             "fmw_infra_121200.jar"
+#orawls::weblogic::fmw_infra:            true
+
+orawls::weblogic::middleware_home_dir:  *wls_middleware_home_dir
+orawls::weblogic::log_output:           true
+
+# hiera default anchors
+orawls::weblogic::jdk_home_dir:         *wls_jdk_home_dir
+orawls::weblogic::oracle_base_home_dir: *wls_oracle_base_home_dir
+orawls::weblogic::os_user:              *wls_os_user
+orawls::weblogic::os_group:             *wls_os_group
+orawls::weblogic::download_dir:         *wls_download_dir
+orawls::weblogic::source:               *wls_source
+orawls::weblogic::remote_file:          false
+
+opatch_instances:
+  '16175470':
+     oracle_product_home_dir:  "/opt/oracle/middleware12c"
+     patch_id:                 "16175470"
+     patch_file:               "p16175470_121200_Generic.zip"
+     remote_file:              false
+
+# handy WebLogic scripts in /opt/scripts/wls
+orautils::osOracleHomeParam:      *wls_oracle_base_home_dir
+orautils::oraInventoryParam:      "/opt/oracle/oraInventory"
+orautils::osDomainTypeParam:      "admin"
+orautils::osLogFolderParam:       *wls_log_dir
+orautils::osDownloadFolderParam:  *wls_download_dir
+orautils::osMdwHomeParam:         *wls_middleware_home_dir
+orautils::osWlHomeParam:          *wls_weblogic_home_dir
+orautils::oraUserParam:           *wls_os_user
+
+orautils::osDomainParam:          "Wls1212"
+orautils::osDomainPathParam:      "/opt/oracle/middleware12c/user_projects/domains/Wls1212"
+orautils::nodeMgrPathParam:       "/opt/oracle/middleware12c/user_projects/domains/Wls1212/bin"
+
+orautils::nodeMgrPortParam:       5556
+orautils::wlsUserParam:           *wls_weblogic_user
+orautils::wlsPasswordParam:       "weblogic1"
+orautils::wlsAdminServerParam:    "AdminServer"
+
+
