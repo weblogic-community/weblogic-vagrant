@@ -1,0 +1,27 @@
+
+wlsUser    = '<%= @wlsUser %>'
+password   = '<%= @password %>'
+machine    = '<%= @address %>'
+portNumber = <%= @port %>
+
+#domain, domainPath, wlsServer  
+<% @params.each do |param| -%>
+<%= param %>
+<% end -%>
+
+useStoreConfig = '<%= @useStoreConfig %>'
+
+if useStoreConfig != "true":
+    nmConnect(wlsUser,password,machine,portNumber,domain,domainPath,'ssl')
+else:
+    nmConnect(userConfigFile='<%= @userConfigFile %>', userKeyFile='<%= @userKeyFile %>',host=machine,port=portNumber,domainName=domain,domainDir=domainPath,nmType='ssl')    
+
+
+#start the WlsServer
+nmStart(wlsServer)
+
+#Ask the status of the WlsServer
+nmServerStatus(wlsServer)
+
+#disconnect from the nodemanager
+nmDisconnect()

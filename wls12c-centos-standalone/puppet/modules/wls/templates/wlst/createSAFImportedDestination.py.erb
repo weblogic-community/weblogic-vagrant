@@ -1,0 +1,44 @@
+
+wlsUser    = '<%= @wlsUser %>'  
+password   = '<%= @password %>' 
+machine    = '<%= @address %>'  
+portNumber = '<%= @port %>'     
+                                
+#jmsModuleName, impDesName, desName,subDeployment,jndiPrefix
+<% @params.each do |param| -%>   
+<%= param %>                    
+<% end -%>                      
+
+            
+useStoreConfig = '<%= @useStoreConfig %>'
+
+if useStoreConfig != "true":
+    connect(wlsUser,password,'t3://'+machine+':'+portNumber)
+else:
+    connect(userConfigFile='<%= @userConfigFile %>', userKeyFile='<%= @userKeyFile %>', url='t3://'+machine+':'+portNumber)    
+
+
+edit()
+startEdit()
+
+try:
+    cd('/')
+    cd('/JMSSystemResources/'+jmsModuleName+'/JMSResource/'+jmsModuleName)
+    cmo.createSAFImportedDestinations(impDesName)
+    
+    cd('/JMSSystemResources/'+jmsModuleName+'/JMSResource/'+jmsModuleName+'/SAFImportedDestinations/'+impDesName)
+    cmo.setSAFRemoteContext(getMBean('/JMSSystemResources/'+jmsModuleName+'/JMSResource/'+jmsModuleName+'/SAFRemoteContexts/'+desName))
+    cmo.setJNDIPrefix(jndiPrefix)
+    cmo.setSAFErrorHandling(None)
+    cmo.setTimeToLiveDefault(0)
+    cmo.setUseSAFTimeToLiveDefault(false)
+    
+    cd('/JMSSystemResources/'+jmsModuleName+'/JMSResource/'+jmsModuleName+'/SAFImportedDestinations/'+impDesName)
+    cmo.setSubDeploymentName(subDeployment)                
+
+    save()
+    activate()          
+except:
+    print "Unexpected error:", sys.exc_info()[0]
+    undo('true','y')
+    stopEdit('y')

@@ -1,0 +1,39 @@
+
+
+wlsUser    = '<%= @wlsUser %>'  
+password   = '<%= @password %>' 
+machine    = '<%= @address %>'  
+portNumber = '<%= @port %>'     
+
+       
+#userPassword, allUsers, group
+<% @params.each do |param| -%>   
+<%= param %>                    
+<% end -%>                      
+
+            
+useStoreConfig = '<%= @useStoreConfig %>'
+
+if useStoreConfig != "true":
+    connect(wlsUser,password,'t3://'+machine+':'+portNumber)
+else:
+    connect(userConfigFile='<%= @userConfigFile %>', userKeyFile='<%= @userKeyFile %>', url='t3://'+machine+':'+portNumber)    
+
+
+print 'lookup DefaultAuthenticator' 
+
+users=String(allUsers).split(",")
+
+try:
+    atnr=cmo.getSecurityConfiguration().getDefaultRealm().lookupAuthenticationProvider('DefaultAuthenticator')
+
+    print 'create group'
+    atnr.createGroup(group,group)
+
+    for user in users:        
+      print 'create user: ',user
+      atnr.createUser(user,userPassword,user)
+      atnr.addMemberToGroup(group,user)
+
+except:
+    print "Unexpected error:", sys.exc_info()[0]

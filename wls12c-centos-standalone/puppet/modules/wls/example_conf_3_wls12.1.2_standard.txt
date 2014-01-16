@@ -1,0 +1,238 @@
+#
+# one machine setup with weblogic 12.1.2
+# creates an WLS Domain with JAX-WS (advanced , soap)
+# needs jdk7, wls, orautils, fiddyspence-sysctl, erwbgy-limits puppet modules
+#
+
+node 'xxxx.alfa.local' inherits default {
+  
+   include os_5, wls12_5, wls12c_domain_5, maintenance_5
+   Class['os_5']  -> Class['wls12_5'] -> Class['wls12c_domain_5'] -> Class['maintenance_5']
+
+   class{'orautils':
+        osOracleHomeParam      => "/opt/oracle",
+        oraInventoryParam      => "/opt/oracle/oraInventory",
+        osDomainTypeParam      => "admin",
+        osLogFolderParam       => "/data/logs",
+        osDownloadFolderParam  => "/data/install",
+        osMdwHomeParam         => "/opt/oracle/Middleware12c",
+        osWlHomeParam          => "/opt/oracle/Middleware12c/wlserver",
+        oraUserParam           => "oracle",
+        osDomainParam          => "Wls12c",
+        osDomainPathParam      => "/opt/oracle/Middleware12c/user_projects/domains/Wls12c",
+        nodeMgrPathParam       => "/opt/oracle/Middleware12c/user_projects/domains/Wls12c/bin",
+        nodeMgrPortParam       => 5556,
+        wlsUserParam           => "weblogic",
+        wlsPasswordParam       => "weblogic1",
+        wlsAdminServerParam    => "AdminServer",
+    } 
+}
+
+
+# operating settings for Middleware
+class os_5 {
+
+  $remove = [ "java-1.7.0-openjdk.x86_64", "java-1.6.0-openjdk.x86_64" ]
+
+  package { $remove:
+    ensure  => absent,
+  }
+
+  include jdk7
+
+  jdk7::install7{ 'jdk1.7.0_40':
+      version              => "7u40" , 
+      fullVersion          => "jdk1.7.0_40",
+      alternativesPriority => 18000, 
+      x64                  => true,
+      downloadDir          => "/data/install",
+      urandomJavaFix       => false,
+      sourcePath           => "puppet:///modules/jdk7/"
+  }
+  
+  
+  class { 'limits':
+    config => {
+               '*'       => { 'nofile'   => { soft => '2048'   , hard => '8192',   },},
+               'oracle'  => {  'nofile'  => { soft => '65536'  , hard => '65536',  },
+                               'nproc'   => { soft => '2048'   , hard => '16384',   },
+                               'memlock' => { soft => '1048576', hard => '1048576',},
+                               'stack'   => { soft => '10240'  ,},},
+               },
+    use_hiera => false,
+  }
+
+  sysctl { 'kernel.msgmnb':                 ensure => 'present', permanent => 'yes', value => '65536',}
+  sysctl { 'kernel.msgmax':                 ensure => 'present', permanent => 'yes', value => '65536',}
+  sysctl { 'kernel.shmmax':                 ensure => 'present', permanent => 'yes', value => '2588483584',}
+  sysctl { 'kernel.shmall':                 ensure => 'present', permanent => 'yes', value => '2097152',}
+  sysctl { 'fs.file-max':                   ensure => 'present', permanent => 'yes', value => '6815744',}
+  sysctl { 'net.ipv4.tcp_keepalive_time':   ensure => 'present', permanent => 'yes', value => '1800',}
+  sysctl { 'net.ipv4.tcp_keepalive_intvl':  ensure => 'present', permanent => 'yes', value => '30',}
+  sysctl { 'net.ipv4.tcp_keepalive_probes': ensure => 'present', permanent => 'yes', value => '5',}
+  sysctl { 'net.ipv4.tcp_fin_timeout':      ensure => 'present', permanent => 'yes', value => '30',}
+  sysctl { 'kernel.shmmni':                 ensure => 'present', permanent => 'yes', value => '4096', }
+  sysctl { 'fs.aio-max-nr':                 ensure => 'present', permanent => 'yes', value => '1048576',}
+  sysctl { 'kernel.sem':                    ensure => 'present', permanent => 'yes', value => '250 32000 100 128',}
+  sysctl { 'net.ipv4.ip_local_port_range':  ensure => 'present', permanent => 'yes', value => '9000 65500',}
+  sysctl { 'net.core.rmem_default':         ensure => 'present', permanent => 'yes', value => '262144',}
+  sysctl { 'net.core.rmem_max':             ensure => 'present', permanent => 'yes', value => '4194304', }
+  sysctl { 'net.core.wmem_default':         ensure => 'present', permanent => 'yes', value => '262144',}
+  sysctl { 'net.core.wmem_max':             ensure => 'present', permanent => 'yes', value => '1048576',}
+
+}
+
+
+
+class wls12_5{
+
+  $jdkWls12cJDK = 'jdk1.7.0_40'
+
+  $osOracleHome    = "/opt/oracle"
+  $osMdwHome       = "/opt/oracle/Middleware12c"
+  $osWlHome        = "/opt/oracle/Middleware12c/wlserver"
+  $user            = "oracle"
+  $group           = "dba"
+  $downloadDir     = "/data/install"
+
+  $puppetDownloadMntPoint = "puppet:///middleware/"
+
+  # set the wls defaults
+  Wls::Installwls {
+    version                => '1212',
+    mdwHome                => $osMdwHome,
+    oracleHome             => $osOracleHome,
+    fullJDKName            => $jdkWls12cJDK, 
+    user                   => $user,
+    group                  => $group,   
+    downloadDir            => $downloadDir,
+    puppetDownloadMntPoint => $puppetDownloadMntPoint, 
+  }
+
+  wls::installwls{'wls12c':
+  } 
+
+} 
+
+
+class wls12c_domain_5{
+
+  $jdkWls12gJDK    = 'jdk1.7.0_40'
+
+  $wlsDomainName   = "Wls12c"
+  $osTemplate      = "standard"
+
+  $adminListenPort = "7001"
+  $nodemanagerPort = "5556"
+  $address         = "localhost"
+
+  $osOracleHome    = "/opt/oracle"
+  $osMdwHome       = "/opt/oracle/Middleware12c"
+  $osWlHome        = "/opt/oracle/Middleware12c/wlserver"
+
+  $user         = "oracle"
+  $group        = "dba"
+  $downloadDir  = "/data/install"
+  $logDir       = "/data/logs" 
+
+  case $operatingsystem {
+     CentOS, RedHat, OracleLinux, Ubuntu, Debian: { 
+       $userConfigDir = '/home/oracle'
+     }
+     Solaris: { 
+       $userConfigDir = '/export/home/oracle'
+     }
+   }
+
+  # install domain
+  wls::wlsdomain{
+   'wlsDomain12c':
+    version         => "1212",
+    wlHome          => $osWlHome,
+    mdwHome         => $osMdwHome,
+    fullJDKName     => $jdkWls12gJDK,  
+    user            => $user,
+    group           => $group,    
+    downloadDir     => $downloadDir, 
+    wlsTemplate     => $osTemplate,
+    domain          => $wlsDomainName,
+    adminListenPort => $adminListenPort,
+    nodemanagerPort => $nodemanagerPort,
+    wlsUser         => "weblogic",
+    password        => "weblogic1",
+    logDir          => $logDir,
+  }
+
+  Wls::Nodemanager {
+    wlHome       => $osWlHome,
+    fullJDKName  => $jdkWls12gJDK,	
+    user         => $user,
+    group        => $group,
+    serviceName  => $serviceName,  
+  }
+
+   #nodemanager starting 
+   # in 12c start it after domain creation
+   wls::nodemanager{'nodemanager12c':
+     version    => "1212",
+     listenPort => $nodemanagerPort,
+     domain     => $wlsDomainName,   	 
+     require    => Wls::Wlsdomain['wlsDomain12c'],
+   }  
+ 
+ 
+   orautils::nodemanagerautostart{"autostart ${wlsDomainName}":
+      version     => "1212",
+      wlHome      => $osWlHome, 
+      user        => $user,
+      domain      => $wlsDomainName,
+      logDir      => $logDir,
+      require     => Wls::Nodemanager['nodemanager12c'];
+   }
+
+  # start AdminServers for configuration
+  wls::wlscontrol{'startWLSAdminServer12c':
+      wlsDomain     => $wlsDomainName,
+      wlsDomainPath => "${osMdwHome}/user_projects/domains/${wlsDomainName}",
+      wlsServer     => "AdminServer",
+      action        => 'start',
+      wlHome        => $osWlHome,
+      fullJDKName   => $jdkWls12gJDK,  
+      wlsUser       => "weblogic",
+      password      => "weblogic1",
+      address       => $address,
+      port          => $nodemanagerPort,
+      user          => $user,
+      group         => $group,
+      downloadDir   => $downloadDir,
+      logOutput     => true, 
+      require       => Wls::Nodemanager['nodemanager12c'],
+  }
+
+}
+
+class maintenance_5 {
+
+  case $operatingsystem {
+    CentOS, RedHat, OracleLinux, Ubuntu, Debian: { 
+      $mtimeParam = "1"
+    }
+    Solaris: { 
+      $mtimeParam = "+1"
+    }
+  }
+
+  cron { 'cleanwlstmp' :
+	  command => "find /tmp -name '*.tmp' -mtime ${mtimeParam} -exec rm {} \\; >> /tmp/tmp_purge.log 2>&1",
+	  user    => oracle,
+	  hour    => 06,
+	  minute  => 25,
+  }
+	
+  cron { 'mdwlogs' :
+	  command => "find /opt/oracle/Middleware12c/logs -name 'wlst_*.*' -mtime ${mtimeParam} -exec rm {} \\; >> /tmp/wlst_purge.log 2>&1",
+	  user    => oracle,
+	  hour    => 06,
+	  minute  => 30,
+  }
+}

@@ -1,0 +1,8 @@
+name 'fiddyspence-sysctl'
+version '0.0.5'
+source 'git://github.com/fiddyspence/puppet-sysctl.git'
+description 'This is a module to manage sysctl entries'
+author 'fiddyspence'
+license 'ASL 2.0'
+summary 'Sysctl Module'
+project_page 'http://github.com/fiddyspence/puppet-sysctl'

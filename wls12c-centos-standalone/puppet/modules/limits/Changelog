@@ -1,0 +1,4 @@
+0.3.0
+
+* Enable muliple entries to be set for the same domain (user, group, everyone)
+  - for example both nofile and nproc for a group.
