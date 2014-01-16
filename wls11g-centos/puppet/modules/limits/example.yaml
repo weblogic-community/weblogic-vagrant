@@ -1,0 +1,15 @@
+limits:
+  '*':
+    nofile:
+      soft: '2048'
+      hard: '4196'
+    nproc:
+      soft: '20'
+      hard: '20'
+  'myuser':
+    nofile:
+      soft: '4068'
+      hard: '8192'
+  '@mygroup':
+    nproc:
+      hard: '50'

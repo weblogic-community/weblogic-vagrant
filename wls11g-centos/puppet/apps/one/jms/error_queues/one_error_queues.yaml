@@ -1,0 +1,21 @@
+---
+logoutput:                     &logoutput                     true
+
+errors_queues_instances:
+   - clusterOne:
+      global_parameters:
+         log_output:           *logoutput
+         weblogic_type:        "jmsobject"
+         script:               'createJmsQueueOrTopic.py'
+         params:
+            - "subDeploymentName = 'jmsServers'"
+            - "jmsModuleName     = 'jmsClusterModule'"
+            - "distributed       = 'true'"
+            - "balancingPolicy   = 'Round-Robin'"
+            - "useRedirect       = 'false'"
+      createJmsErrorQueueforJmsModule:
+         weblogic_object_name: "ErrorQueue"
+         params:
+            - "jmsName           = 'ErrorQueue'"
+            - "jmsJNDIName       = 'jms/ErrorQueue'"
+            - "jmsType           = 'queue'"

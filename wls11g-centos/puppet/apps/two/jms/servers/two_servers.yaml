@@ -1,0 +1,21 @@
+---
+logoutput:                     &logoutput                     true
+
+servers_instances:
+   - clusterTwo:
+      global_parameters:
+         log_output:           *logoutput
+         weblogic_type:        "jmsserver"
+         script:               'createJmsServer.py'
+         params:
+            - "targetType       = 'Server'"
+      jmsServerNode3:
+         weblogic_object_name: "jmsServer3"
+         params:
+            - "target           = 'wlsServer3'"
+            - "jmsServerName    = 'jmsServer3'"
+      jmsServerNode4:
+         weblogic_object_name: "jmsServer4"
+         params:
+            - "target           = 'wlsServer4'"
+            - "jmsServerName    = 'jmsServer4'"

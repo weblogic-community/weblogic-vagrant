@@ -1,0 +1,20 @@
+---
+logoutput:                     &logoutput                     true
+
+# create jms connection factory for jms module  
+cf_instances:
+   - clusterOne:
+      global_parameters:
+         log_output:           *logoutput
+         weblogic_type:        "jmsobject"
+         script:               'createJmsConnectionFactory.py'
+         params:
+            - "subDeploymentName = 'wlsServers'"
+            - "jmsModuleName     = 'jmsClusterModule'"
+            - "transacted        = 'false'"
+            - "timeout           = 100000"
+      createJmsConnectionFactoryforJmsModule:
+         weblogic_object_name: "cf"
+         params:
+            - "cfName            = 'cf'"
+            - "cfJNDIName        = 'jms/cf'"

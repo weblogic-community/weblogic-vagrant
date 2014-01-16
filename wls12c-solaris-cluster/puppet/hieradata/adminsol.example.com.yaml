@@ -1,0 +1,73 @@
+---
+messageEnv: 'admin'
+
+orawls::weblogic::log_output:   true
+
+
+logoutput:                     &logoutput                     true
+
+# when you have just one domain on a server
+domain_name:                "Wls1212"
+domain_adminserver:         "AdminServer"
+domain_adminserver_address: "10.10.10.10"
+domain_adminserver_port:    7001
+domain_nodemanager_port:    5556
+domain_wls_password:        "weblogic1"
+domain_user_config_file:    "/export/home/oracle/oracle-Wls1212-WebLogicConfig.properties"
+domain_user_key_file:       "/export/home/oracle/oracle-Wls1212-WebLogicKey.properties"
+
+
+# create a standard domain
+domain_instances:
+  'wlsDomain':
+     domain_template:          "standard"
+     development_mode:         false
+     log_output:               *logoutput
+
+# pack domains
+pack_domain_instances:
+  'wlsDomain':
+     log_output:               *logoutput
+
+
+# create and startup the nodemanager
+nodemanager_instances:
+  'nodemanager':
+     log_output:           *logoutput
+     nodemanager_address:  "10.10.10.10"
+
+# startup adminserver for extra configuration
+control_instances:
+  'startWLSAdminServer':
+     domain_dir:           "/opt/oracle/middleware12c/user_projects/domains/Wls1212"
+     server_type:          'admin'
+     target:               'Server'
+     server:               'AdminServer'
+     action:               'start'
+     log_output:           *logoutput
+
+# create password file for WLST utility
+userconfig_instances:
+  'Wls12c':
+     log_output:           *logoutput
+     user_config_dir:      '/export/home/oracle'
+
+# create 2 machines
+machines_instances:
+  'createMachine_node1':
+     log_output:           *logoutput
+     weblogic_type:        "machine"
+     weblogic_object_name: "Node1"
+     script:               'createMachine.py'
+     params:
+        - "machineName      = 'Node1'"
+        - "machineDnsName   = '10.10.10.100'"
+  'createMachine_node2':
+     log_output:           *logoutput
+     weblogic_type:        "machine"
+     weblogic_object_name: "Node2"
+     script:               'createMachine.py'
+     params:
+        - "machineName      = 'Node2'"
+        - "machineDnsName   = '10.10.10.200'"
+

@@ -1,0 +1,13 @@
+{
+  "name": "biemond-jdksolaris",
+  "version": "0.1.0",
+  "summary": "Oracle JDK7 puppet module for Oracle Solaris 10",
+  "author": "Edwin Biemond",
+  "description": "Oracle JDK7 puppet module for Oracle Solaris 10",
+  "dependencies": [],
+  "types": [],
+  "checksums": {},
+  "source": "",
+  "project_page": "",
+  "license": "Apache 2.0"
+}

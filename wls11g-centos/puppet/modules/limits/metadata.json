@@ -1,0 +1,28 @@
+{
+  "author": "erwbgy",
+  "dependencies": [
+
+  ],
+  "types": [
+
+  ],
+  "source": "UNKNOWN",
+  "project_page": "https://github.com/erwbgy/puppet-limits",
+  "license": "Apache License, Version 2.0",
+  "version": "0.3.1",
+  "checksums": {
+    "Changelog": "abddd120364266f0fc1aad979d9753c8",
+    "example.yaml": "f769a567dbcb7a48b18b5ca5e45353bb",
+    "manifests/entry.pp": "0f4fd83644e02503f6089285402b6184",
+    "Rakefile": "f37e6131fe7de9a49b09d31596f5fbf1",
+    "manifests/domain.pp": "d95f310bbfab6a95208febb1c2db0fe7",
+    "spec/spec_helper.rb": "3ea886dd135e120afa31e0aab12e85b0",
+    "manifests/init.pp": "64a069cbe37bb0992dd6a96060343af2",
+    "Modulefile": "10ecf0aff6984273ac44a257298ad981",
+    "manifests/set.pp": "1c1dd9b4af749c60018c0edb24a414bd",
+    "README.md": "8b0a96997f09737742e0bd050a8e9d64"
+  },
+  "description": "UNKNOWN",
+  "name": "erwbgy-limits",
+  "summary": "Manage entries in /etc/security/limits.conf"
+}

@@ -1,0 +1,27 @@
+---
+logoutput:                     &logoutput                     true
+
+servers_instances:
+   - clusterTwo:
+      global_parameters:
+         log_output:           *logoutput
+         weblogic_type:        "server"
+         script:               'createServer.py'
+         params:
+            - "listenPort       = 8002"
+            - "nodeMgrLogDir    = '/data/logs'"
+      wlsServer3_node1:
+         weblogic_object_name: "wlsServer3"
+         params:
+            - "javaArguments    = '-XX:PermSize=256m -XX:MaxPermSize=256m -Xms752m -Xmx752m -Dweblogic.Stdout=/data/logs/wlsServer1.out -Dweblogic.Stderr=/data/logs/wlsServer1_err.out'"
+            - "wlsServerName    = 'wlsServer3'"
+            - "machineName      = 'Node1'"
+            - "listenAddress    = '10.10.10.100'"
+      wlsServer4_node2:
+         weblogic_object_name: "wlsServer4"
+         params:
+            - "javaArguments    = '-XX:PermSize=256m -XX:MaxPermSize=256m -Xms752m -Xmx752m -Dweblogic.Stdout=/data/logs/wlsServer2.out -Dweblogic.Stderr=/data/logs/wlsServer2_err.out'"
+            - "wlsServerName    = 'wlsServer4'"
+            - "machineName      = 'Node2'"
+            - "listenAddress    = '10.10.10.200'"
+

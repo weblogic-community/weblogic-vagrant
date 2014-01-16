@@ -1,0 +1,24 @@
+---
+logoutput:                     &logoutput                     true
+
+# create jms subdeployment for the jms module 
+subdeployments_instances:
+   - clusterOne:
+      global_parameters:
+         log_output:           *logoutput
+         weblogic_type:        "jmssubdeployment"
+         script:               'createJmsSubDeployment.py'
+         params:
+            - "jmsModuleName    = 'jmsClusterModule'"
+      SubDeploymentWLSforJmsModule:
+         weblogic_object_name: "jmsClusterModule/wlsServers"
+         params:
+            - "target           = 'WebCluster'"
+            - "targetType       = 'Cluster'"
+            - "subName          = 'wlsServers'"
+      SubDeploymentJMSforJmsModule:
+         weblogic_object_name: "jmsClusterModule/jmsServers"
+         params:
+            - "target           = 'jmsServer1,jmsServer2'"
+            - "targetType       = 'JMSServer'"
+            - "subName          = 'jmsServers'"

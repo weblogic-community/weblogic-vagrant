@@ -1,0 +1,21 @@
+---
+logoutput:                     &logoutput                     true
+
+jms_saf_agents_instances:
+   - clusterOne:
+      global_parameters:
+         log_output:           *logoutput
+         weblogic_type:        "safagent"
+         script:               'createSAFAgents.py'
+         params:
+            - "serviceType      = 'Both'"
+      jmsSAFAgent1:
+         weblogic_object_name: "jmsSAFAgent1"
+         params:
+            - "target           = 'wlsServer1'"
+            - "name             = 'jmsSAFAgent1'"
+      jmsSAFAgent2:
+         weblogic_object_name: "jmsSAFAgent2"
+         params:
+            - "target           = 'wlsServer2'"
+            - "name             = 'jmsSAFAgent2'"

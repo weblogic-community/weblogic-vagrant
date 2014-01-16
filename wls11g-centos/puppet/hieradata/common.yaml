@@ -1,0 +1,94 @@
+---
+messageDefault: 'default'
+messageEnv:     'common'
+
+
+hosts:
+  'admin':
+    ip:                "10.10.10.10"
+    host_aliases:      - 'admin.example.com'
+                       - 'admin'
+  'node1':
+    ip:                "10.10.10.100"
+    host_aliases:      - 'node1.example.com'
+                       - 'node1'
+  'node2':
+    ip:                "10.10.10.200"
+    host_aliases:      - 'node2.example.com'
+                       - 'node2'
+
+apps_config_dir:    "/vagrant/puppet/apps"
+
+# global WebLogic vars
+wls_oracle_base_home_dir: &wls_oracle_base_home_dir "/opt/oracle"
+wls_weblogic_user:        &wls_weblogic_user        "weblogic"
+wls_weblogic_home_dir:    &wls_weblogic_home_dir    "/opt/oracle/middleware11g/wlserver_10.3"
+wls_middleware_home_dir:  &wls_middleware_home_dir  "/opt/oracle/middleware11g"
+wls_version:              &wls_version              1036
+
+# global OS vars
+wls_os_user:              &wls_os_user              "wls"
+wls_os_group:             &wls_os_group             "dba"
+wls_download_dir:         &wls_download_dir         "/data/install"
+wls_source:               &wls_source               "/software"
+wls_jdk_home_dir:         &wls_jdk_home_dir         "/usr/java/jdk1.7.0_45"
+wls_log_dir:              &wls_log_dir              "/data/logs"
+
+
+#WebLogic installation variables 
+orawls::weblogic::version:              *wls_version
+orawls::weblogic::filename:             "wls1036_generic.jar"
+orawls::weblogic::middleware_home_dir:  *wls_middleware_home_dir
+orawls::weblogic::log_output:           false
+
+# hiera default anchors
+orawls::weblogic::jdk_home_dir:         *wls_jdk_home_dir
+orawls::weblogic::oracle_base_home_dir: *wls_oracle_base_home_dir
+orawls::weblogic::os_user:              *wls_os_user
+orawls::weblogic::os_group:             *wls_os_group
+orawls::weblogic::download_dir:         *wls_download_dir
+orawls::weblogic::source:               *wls_source
+orawls::weblogic::remote_file:          false
+
+
+# patches for WebLogic 10.3.6
+bsu_instances:
+  'BYJ1':
+    patch_id:                "BYJ1"
+    patch_file:              "p17071663_1036_Generic.zip"
+    log_output:              true
+    remote_file:             false
+
+# FMW installation on top of WebLogic 10.3.6
+fmw_installations:
+#  'osbPS6':
+#    fmw_product:             "osb"
+#    fmw_file1:               "ofm_osb_generic_11.1.1.7.0_disk1_1of1.zip"
+#    log_output:              true
+#  'soaPS6':
+#    fmw_product:             "soa"
+#    fmw_file1:               "ofm_soa_generic_11.1.1.7.0_disk1_1of2.zip"
+#    fmw_file2:               "ofm_soa_generic_11.1.1.7.0_disk1_2of2.zip"
+#    log_output:              true
+
+
+# handy WebLogic scripts in /opt/scripts/wls
+orautils::osOracleHomeParam:      *wls_oracle_base_home_dir
+orautils::oraInventoryParam:      "/opt/oracle/oraInventory"
+orautils::osDomainTypeParam:      "admin"
+orautils::osLogFolderParam:       *wls_log_dir
+orautils::osDownloadFolderParam:  *wls_download_dir
+orautils::osMdwHomeParam:         *wls_middleware_home_dir
+orautils::osWlHomeParam:          *wls_weblogic_home_dir
+orautils::oraUserParam:           *wls_os_user
+
+orautils::osDomainParam:          "Wls1036"
+orautils::osDomainPathParam:      "/opt/oracle/wlsdomains/domains/Wls1036"
+orautils::nodeMgrPathParam:       "/opt/oracle/middleware11g/wlserver_10.3/server/bin"
+
+orautils::nodeMgrPortParam:       5556
+orautils::wlsUserParam:           *wls_weblogic_user
+orautils::wlsPasswordParam:       "weblogic1"
+orautils::wlsAdminServerParam:    "AdminServer"
+
+

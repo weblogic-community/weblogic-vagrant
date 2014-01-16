@@ -1,0 +1,66 @@
+{
+  "name": "fiddyspence-sysctl",
+  "version": "0.0.5",
+  "source": "git://github.com/fiddyspence/puppet-sysctl.git",
+  "author": "fiddyspence",
+  "license": "ASL 2.0",
+  "summary": "Sysctl Module",
+  "description": "This is a module to manage sysctl entries",
+  "project_page": "http://github.com/fiddyspence/puppet-sysctl",
+  "dependencies": [
+
+  ],
+  "types": [
+    {
+      "name": "sysctl",
+      "doc": "    This type provides the capability to manage sysctl kernel parameters within\n    puppet.\n",
+      "properties": [
+        {
+          "name": "ensure",
+          "doc": "The basic property that the resource should be in.  Valid values are `present`, `absent`."
+        },
+        {
+          "name": "value",
+          "doc": "the value that the running kernel should be set to"
+        },
+        {
+          "name": "permanent",
+          "doc": "whether the value should be in [/etc/sysctl.conf]  Values can match `/yes|no/`."
+        }
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "doc": "the name of the kernel parameter to fiddle with"
+        },
+        {
+          "name": "path",
+          "doc": "which sysctl.conf we are dealing with"
+        }
+      ],
+      "providers": [
+        {
+          "name": "darwin",
+          "doc": "  Required binaries: `sysctl`.    "
+        },
+        {
+          "name": "linux",
+          "doc": "  Required binaries: `sysctl`.    "
+        }
+      ]
+    }
+  ],
+  "checksums": {
+    "LICENSE": "5fc4dacd9f6ebaf73a29702b56760305",
+    "Modulefile": "bae35359567edffc7c3191554939926e",
+    "README": "b3e5f06d5a9887b36fde418c1a73b039",
+    "Rakefile": "3a445a51ef5acbbd614e05ccf22ad14e",
+    "lib/puppet/provider/sysctl/darwin.rb": "273474c4cfc04243f92a32caff632b1e",
+    "lib/puppet/provider/sysctl/linux.rb": "d589fb869afd4b584af6e89d82f5140c",
+    "lib/puppet/type/sysctl.rb": "0ba25754548630344738a7959fea2bb8",
+    "spec/fixtures/manifests/site.pp": "d41d8cd98f00b204e9800998ecf8427e",
+    "spec/spec_helper.rb": "f13c912ca3579d58dbaa59302d8a193c",
+    "spec/unit/provider/sysctl/linux_spec.rb": "1763fb0d87952713efac1d2564feb34d",
+    "spec/unit/type/sysctl_spec.rb": "b728ac54b00c24c45feb02ce142cd76a"
+  }
+}
