@@ -1,52 +1,61 @@
-biemond-orawls-vagrant
-=======================
+WebLogic 11g Clustered on CentOS
+================================
 
-The reference implementation of https://github.com/biemond/biemond-orawls  
-optimized for linux and the use of Hiera  
+The reference implementation of https://github.com/biemond/biemond-orawls optimized for Linux, Solaris and the use of Hiera. This Vagrant project creates a patched 12.1.2 WebLogic cluster with 3 nodes (adminsol, nodesol1, nodesol2). Make sure to review the [site.pp](https://github.com/weblogic-community/weblogic-vagrant/blob/master/wls11g-centos-clustered/puppet/manifests/site.pp) file. [Location of Hiera files](https://github.com/weblogic-community/weblogic-vagrant/blob/master/wls11g-centos-clustered/puppet/hieradata).
 
-uses CentOS 6.5 box with puppet 3.4.2 Future Parser
+This configuration creates a patched WebLogic 11g 10.3.6 Cluster (admin, node1, node2)
 
-creates a patched 10.3.6 WebLogic cluster ( admin,node1 , node2 )
+Getting started
+---------------
+This is what you need to download and install to get the environment stood up.
 
+ * [VagrantUP (latest)](http://www.vagrantup.com)
+ * [Oracle VirtualBox (latest)](http://www.virtualbox.org)
+ * [Oracle JDK 7u51](http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html) (a)
+ * [Oracle WebLogic 11g 10.3.6](http://www.oracle.com/technetwork/middleware/weblogic/downloads/wls-for-dev-1703574.html) - download <pre>wls1036_generic.jar</pre>
+ * [Git](https://help.github.com/articles/set-up-git) client
 
-site.pp is located here:  
-https://github.com/biemond/biemond-orawls-vagrant/blob/master/puppet/manifests/site.pp  
+(a) Oracle JDK - make sure <pre>puppet/manifests/site.pp</pre> is pointing to the correct name of the JDK file you downloaded
 
-The used hiera files https://github.com/biemond/biemond-orawls-vagrant/tree/master/puppet/hieradata
+Software
+--------
+ * CentOS 6.5 x86_64
+ * Puppet 3.4.2 Future Parser
+ * Oracle JDK 7 update 51
+ * WebLogic 11g 10.3.6 (wls1036_generic.jar)
+ * WebLogic 11g 10.3.6 patch 17071663 (p17071663_1036_Generic.zip)
 
-Add the all the Oracle binaris to /software, edit Vagrantfile and update
+The used hiera files are at <pre>puppet/hieradata</pre>
+
+Add all the Oracle binaris you download to /software, edit Vagrantfile and update
 - admin.vm.synced_folder "/Users/edwin/software", "/software"
 - node1.vm.synced_folder "/Users/edwin/software", "/software"
 - node2.vm.synced_folder "/Users/edwin/software", "/software"
 
-
-used the following software
-- jdk-7u45-linux-x64.tar.gz
-
-weblogic 10.3.6
-- wls1036_generic.jar
-- p17071663_1036_Generic.zip ( 10.3.6.06 BSU Patch)
-
 Using the following facts
-
+-------------------------
 - environment => "development"
 - vm_type     => "vagrant"
 
-also need to set "--parser future" (Puppet >= 3.40) to the puppet configuration, cause it uses lambda expressions for collection of yaml entries from application_One and application_Two
+Also need to set "--parser future" (Puppet >= 3.40) to the puppet configuration, cause it uses lambda expressions for collection of yaml entries from application_One and application_Two
 
+Get up and running
+------------------
+To have your virtual machines up and running, issue the following commands:
 
-# admin server  
+# Admin Server  
 vagrant up admin
 
-# node1  
+# Managed Server node1  
 vagrant up node1
 
-# node2  
+# Managed Server node2
 vagrant up node2
 
-
+More information
+================
 Detailed vagrant steps (setup) can be found here:
 
 http://vbatik.wordpress.com/2013/10/11/weblogic-12-1-2-00-with-vagrant/
 
-For Mac Users.  The procedure has been and run tested on Mac.
+The procedure has been and run tested on Mac.

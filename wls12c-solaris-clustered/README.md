@@ -10,14 +10,15 @@ This is what you need to download and install to get the environment stood up.
  * [VagrantUP (latest)](http://www.vagrantup.com)
  * [Oracle VirtualBox (latest)](http://www.virtualbox.org)
  * [Oracle JDK 7u51](http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html) (a)
- * [Oracle WebLogic 12c 12.1.2](http://www.oracle.com/technetwork/middleware/downloads/index-087510.html)
+ * [Oracle WebLogic 12c 12.1.2](http://www.oracle.com/technetwork/middleware/weblogic/downloads/wls-for-dev-1703574.html) - download <pre>wls_121200.jar</pre>
  * [Git](https://help.github.com/articles/set-up-git) client
 
 (a) Oracle JDK - make sure <pre>puppet/manifests/site.pp</pre> is pointing to the correct name of the JDK file you downloaded
 
 Software
 --------
- * Oracle JDK 7 update 45
+ * Solaris 10 x86_64
+ * Oracle JDK 7 update 51
  * WebLogic 12c 12.1.2 (wls_121200.jar or fmw_infra_121200.jar)
  * WebLogic 12c 12.1.2 patch 16175470 (p16175470_121200_Generic.zip)
 
@@ -32,13 +33,14 @@ Also need to set "--parser future" to the puppet configuration, cause it uses la
 
 Get up and running
 ------------------
-To have your virtual machines up and running, issue the following commands
+To have your virtual machines up and running, issue the following commands:
 
 ### Admin Server  
 <pre>$ vagrant up adminsol</pre>
 
-### Node Manager node1  
+### Managed Server node1  
 <pre>$ vagrant up nodesol1</pre>
 
-### Node Manager node2  
+### Managed Server node2  
 <pre>$ vagrant up nodesol2</pre>
+
