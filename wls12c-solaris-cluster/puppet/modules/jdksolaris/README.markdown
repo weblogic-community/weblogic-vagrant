@@ -1,3 +1,0 @@
-# jdksolaris #
-
-This is the jdk_solaris module. It provides...
