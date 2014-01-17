@@ -12,10 +12,10 @@ This is what you need to download and install to get the environment stood up.
  * [VagrantUP (latest)](http://www.vagrantup.com)
  * [Oracle VirtualBox (latest)](http://www.virtualbox.org)
  * [Oracle JDK 7u51](http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html) (a)
- * [Oracle WebLogic 11g 10.3.6](http://www.oracle.com/technetwork/middleware/weblogic/downloads/wls-for-dev-1703574.html) - download <pre>wls1036_generic.jar</pre>
+ * [Oracle WebLogic 11g 10.3.6](http://www.oracle.com/technetwork/middleware/weblogic/downloads/wls-for-dev-1703574.html) - download **wls1036_generic.jar**
  * [Git](https://help.github.com/articles/set-up-git) client
 
-(a) Oracle JDK - make sure <pre>puppet/manifests/site.pp</pre> is pointing to the correct name of the JDK file you downloaded
+(a) Oracle JDK - make sure **puppet/manifests/site.pp** is pointing to the correct name of the JDK file you downloaded
 
 Software
 --------
@@ -25,12 +25,12 @@ Software
  * WebLogic 11g 10.3.6 (wls1036_generic.jar)
  * WebLogic 11g 10.3.6 patch 17071663 (p17071663_1036_Generic.zip)
 
-The used hiera files are at <pre>puppet/hieradata</pre>
+The used hiera files are at **puppet/hieradata**
 
 Add all the Oracle binaris you download to /software, edit Vagrantfile and update
-- admin.vm.synced_folder "/Users/edwin/software", "/software"
-- node1.vm.synced_folder "/Users/edwin/software", "/software"
-- node2.vm.synced_folder "/Users/edwin/software", "/software"
+- admin.vm.synced_folder "/tmp/software", "/software"
+- node1.vm.synced_folder "/tmp/software", "/software"
+- node2.vm.synced_folder "/tmp/software", "/software"
 
 Using the following facts
 -------------------------
