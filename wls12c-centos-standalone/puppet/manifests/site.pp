@@ -23,9 +23,9 @@ class os2 {
 
   include jdk7
 
-  jdk7::install7{ 'jdk1.7.0_45':
-      version              => "7u45" , 
-      fullVersion          => "jdk1.7.0_45",
+  jdk7::install7{ 'jdk1.7.0_51':
+      version              => "7u51" , 
+      fullVersion          => "jdk1.7.0_51",
       alternativesPriority => 18000, 
       x64                  => true,
       downloadDir          => "/data/install",
@@ -98,7 +98,7 @@ class os2 {
 
 class wls12{
 
-  $jdkWls12cJDK = 'jdk1.7.0_45'
+  $jdkWls12cJDK = 'jdk1.7.0_51'
 
   $osOracleHome    = "/oracle"
   $osMdwHome       = "/oracle/product/Middleware12c"
@@ -124,7 +124,7 @@ class wls12{
 
 class wls12c_domain{
 
-  $jdkWls12gJDK    = 'jdk1.7.0_45'
+  $jdkWls12gJDK    = 'jdk1.7.0_51'
 
   $wlsDomainName   = "Wls12c"
   $osTemplate      = "standard"

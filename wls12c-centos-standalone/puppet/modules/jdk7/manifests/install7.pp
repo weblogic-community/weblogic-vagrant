@@ -13,8 +13,8 @@
 #  set -Djava.security.egd=file:/dev/./urandom param
 #
 define jdk7::install7 (
-  $version              = '7u25',
-  $fullVersion          = 'jdk1.7.0_25',
+  $version              = '7u51',
+  $fullVersion          = 'jdk1.7.0_51',
   $x64                  = true,
   $alternativesPriority = 17065,
   $downloadDir          = '/install',
@@ -41,6 +41,7 @@ define jdk7::install7 (
     }
   }
 
+  # example jdk-7u51-linux-x64.tar.gz
   $jdkfile = "jdk-${version}-${installVersion}-${type}${installExtension}"
 
   # set the defaults for Exec
