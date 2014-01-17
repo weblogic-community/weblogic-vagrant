@@ -1,7 +1,7 @@
 ---
 logoutput:                     &logoutput                     true
 
-errors_queues_instances:
+error_queues_instances:
    - clusterOne:
       global_parameters:
          log_output:           *logoutput
