@@ -10,10 +10,10 @@ This is what you need to download and install to get the environment stood up.
  * [VagrantUP (latest)](http://www.vagrantup.com)
  * [Oracle VirtualBox (latest)](http://www.virtualbox.org)
  * [Oracle JDK 7u51](http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html) (a)
- * [Oracle WebLogic 12c 12.1.2](http://www.oracle.com/technetwork/middleware/weblogic/downloads/wls-for-dev-1703574.html) - download <pre>wls_121200.jar</pre>
+ * [Oracle WebLogic 12c 12.1.2](http://www.oracle.com/technetwork/middleware/weblogic/downloads/wls-for-dev-1703574.html) - download **wls_121200.jar**
  * [Git](https://help.github.com/articles/set-up-git) client
 
-(a) Oracle JDK - make sure <pre>puppet/manifests/site.pp</pre> is pointing to the correct name of the JDK file you downloaded
+(a) Oracle JDK - make sure **puppet/manifests/site.pp** is pointing to the correct name of the JDK file you downloaded
 
 Software
 --------
