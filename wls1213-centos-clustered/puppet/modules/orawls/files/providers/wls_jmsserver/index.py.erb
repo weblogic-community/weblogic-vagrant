@@ -1,0 +1,38 @@
+
+
+def quote(text):
+    if text:
+        return "\"" + str(text).replace("\"", "\"\"") + "\""
+    else: 
+        return ""
+
+m = ls('/JMSServers',returnMap='true')
+
+f = open("/tmp/wlstScript.out", "w")
+print >>f, "name;target;targettype;persistentstore;persistentstoretype;domain"
+for token in m:
+  print '___'+token+'___'
+  cd('/JMSServers/'+token)
+
+  n = ls('/JMSServers/'+token+'/Targets',returnMap='true')
+  target = ''
+
+  for token2 in n:
+     target = token2
+     cd('/JMSServers/'+token+'/Targets/'+token2)
+     targetType = get('Type')
+
+  l = ls('/JMSServers/'+token+'/PersistentStore',returnMap='true')
+
+  persistentStore     = ''
+  persistentStoreType = ''
+  for token3 in l:
+     persistentStore = token3
+     cd('/JMSServers/'+token+'/PersistentStore/'+token3)
+     persistentStoreType = get('Type')
+
+  print >>f, ";".join(map(quote, [domain+'/'+token,target,targetType,persistentStore,persistentStoreType,domain]))
+f.close()
+print "~~~~COMMAND SUCCESFULL~~~~"
+
+

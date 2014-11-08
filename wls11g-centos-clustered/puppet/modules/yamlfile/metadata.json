@@ -1,0 +1,66 @@
+{
+  "summary": "Puppet provider yaml file manipulation",
+  "name": "reidmv-yamlfile",
+  "dependencies": [
+    {
+      "version_requirement": ">= 1.1.1",
+      "name": "adrien/filemapper"
+    }
+  ],
+  "source": "https://github.com/reidmv/puppet-module-yamlfile",
+  "license": "Apache 2.0",
+  "author": "Reid Vandewiele <reid@puppetlabs.com>",
+  "checksums": {
+    "README.md": "a76ec336393fc2e3cadd1caee1a67aaa",
+    "Modulefile": "14a19cd030c7b67eb49db111fa89085d",
+    "lib/puppet/type/yaml_setting.rb": "3fc288ebf1d038e909610f9e55f89146",
+    "lib/puppet/provider/yaml_setting/mapped.rb": "c63b31fc60761bee0bfc9cfe385ea46f"
+  },
+  "types": [
+    {
+      "parameters": [
+        {
+          "doc": "The name",
+          "name": "name"
+        },
+        {
+          "doc": "Set to true for values such as passwords to obfuscate log output",
+          "name": "nodisplay"
+        }
+      ],
+      "providers": [
+        {
+          "doc": "Generic filemapper provider for yaml_setting",
+          "name": "mapped"
+        }
+      ],
+      "doc": "    Ensures that a given yaml hash key and value exists within a yaml file.\n    Nested hash keys can be specified by a key-delimited string. Existing\n    data in the target yaml file will be preserved. No guarantees about\n    comments or other formatting/non-functional details.\n\n    Example:\n\n      yaml_setting { 'simple_example':\n        target => '/etc/example.yaml',\n        key    => 'greeting',\n        value  => 'hello',\n      }\n\n      yaml_setting { 'nested_key_example1':\n        target  => '/etc/example.yaml',\n        key     => 'database/username',\n        value   => 'console',\n      }\n\n      yaml_setting { 'nested_key_example2':\n        target  => '/etc/example.yaml',\n        key     => 'database/password',\n        value   => 'passw0rd',\n      }\n\n      yaml_setting { 'nested_key_example3':\n        target  => '/etc/example.yaml',\n        key     => 'one/two/three',\n        type    => 'array',\n        value   => [ 'a', 'b', 'c' ],\n      }\n\n    Result (/etc/example.yaml):\n\n      --- \n        greeting: hello\n        database: \n          username: console\n          password: passw0rd\n        one: \n          two: \n            three: \n              - a\n              - b\n              - c\n\n    In this example, several yaml_settings were specified and the resulting\n    merged hash was created in /etc/example.yaml. If /etc/example.yaml had\n    already contained data, any keys not specified in a yaml_setting resource\n    would be preserved.\n\n",
+      "name": "yaml_setting",
+      "properties": [
+        {
+          "doc": "The basic property that the resource should be in.  Valid values are `present`, `absent`.",
+          "name": "ensure"
+        },
+        {
+          "doc": "The configuration file in which to place settings",
+          "name": "target"
+        },
+        {
+          "doc": "The yaml key",
+          "name": "key"
+        },
+        {
+          "doc": "The data type",
+          "name": "type"
+        },
+        {
+          "doc": "The value to give the configuration key",
+          "name": "value"
+        }
+      ]
+    }
+  ],
+  "project_page": "https://github.com/reidmv/puppet-module-yamlfile",
+  "version": "0.2.0",
+  "description": "type/provider allowing limited manipulation of keys in yaml files as resources"
+}

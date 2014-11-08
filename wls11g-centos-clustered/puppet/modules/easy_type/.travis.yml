@@ -1,0 +1,42 @@
+language: ruby
+cache: bundler
+rvm:
+  - 1.8.7
+  - 1.9.3
+  - 2.0.0
+  - 2.1.0
+  # - jruby-19mode
+  # - rbx-19mode
+bundler_args: --without development
+# before_install:
+#   -  gem update --system 2.1.11 # Temporary fix till rubygems works ok
+script:
+  - bundle exec rspec spec
+  # - bundle exec rake rubocop
+# matrix:
+#   allow_failures:
+#     -rvm: jruby-19mode
+gemfile:
+  - gemfiles/gemfile.1.8.7
+  - gemfiles/gemfile.1.9.3
+
+env:
+  # - PUPPET_GEM_VERSION=3.0.2
+  # - PUPPET_GEM_VERSION=3.1.1
+  # - PUPPET_GEM_VERSION=3.2.4
+  # - PUPPET_GEM_VERSION=3.3.2
+  # - PUPPET_GEM_VERSION=3.4.3
+  - PUPPET_GEM_VERSION=3.5.1
+  - PUPPET_GEM_VERSION=3.6.2
+  - PUPPET_GEM_VERSION=3.7.0
+
+matrix:
+  exclude:
+    - rvm: 1.8.7
+      gemfile: gemfiles/gemfile.1.9.3
+    - rvm: 1.9.3
+      gemfile: gemfiles/gemfile.1.8.7
+    - rvm: 2.0.0
+      gemfile: gemfiles/gemfile.1.8.7
+    - rvm: 2.1.0
+      gemfile: gemfiles/gemfile.1.8.7

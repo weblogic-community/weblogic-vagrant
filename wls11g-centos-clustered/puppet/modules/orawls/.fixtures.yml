@@ -1,0 +1,10 @@
+fixtures:
+  repositories:
+    'easy_type':
+      repo: 'git://github.com/hajee/easy_type.git'
+    'yamlfile':
+      repo: 'git://github.com/reidmv/puppet-module-yamlfile'
+    'filemapper':
+      repo: 'git://github.com/adrienthebo/puppet-filemapper'
+  symlinks:
+    'orawls': '#{source_dir}'

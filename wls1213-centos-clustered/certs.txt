@@ -1,0 +1,39 @@
+certs.txt
+
+identity_admin.jks   alias admin  password welcome
+identity_node1.jks   alias node1  password welcome
+identity_node2.jks   alias node2  password welcome
+
+truststore.jks password welcome
+
+
+admin.example.com nodemanager.properties
+----
+KeyStores=CustomIdentityAndCustomTrust
+CustomIdentityKeyStoreFileName=/vagrant/identity_admin.jks
+CustomIdentityKeyStorePassPhrase=welcome
+CustomIdentityAlias=admin
+CustomIdentityPrivateKeyPassPhrase=welcome
+----
+
+node1.example.com nodemanager.properties
+----
+KeyStores=CustomIdentityAndCustomTrust
+CustomIdentityKeyStoreFileName=/vagrant/identity_node1.jks
+CustomIdentityKeyStorePassPhrase=welcome
+CustomIdentityAlias=node1
+CustomIdentityPrivateKeyPassPhrase=welcome
+----
+
+# start AdminServer From Nodemanager
+export CONFIG_JVM_ARGS='-Dweblogic.ssl.JSSEEnabled=true -Dweblogic.security.SSL.enableJSSE=true -Dweblogic.security.TrustKeyStore=CustomTrust -Dweblogic.security.CustomTrustKeyStoreFileName=/vagrant/truststore.jks -Dweblogic.security.CustomTrustKeystorePassPhrase=welcome'
+
+/opt/oracle/middleware11g/wlserver_10.3/common/bin/wlst.sh
+
+nmConnect('weblogic','weblogic1','10.10.10.10','5556','Wls1036','/opt/oracle/wlsdomains/domains/Wls1036','ssl')
+
+#check
+cd /vagrant
+java -Djavax.net.ssl.trustStore=/vagrant/truststore.jks -Djavax.net.ssl.trustStorePassword=welcome SSLPoke 10.10.10.10 5556
+
+

@@ -1,0 +1,34 @@
+
+
+def quote(text):
+	if text:
+		return "\"" + str(text).replace("\"", "\"\"") + "\""
+	else: 
+		return ""
+
+m = ls('/Servers',returnMap='true')
+
+f = open("/tmp/wlstScript.out", "w")
+print >>f, "name;server;protocol;enabled;listenport;httpenabled;outboundenabled;tunnelingenabled;listenaddress;publicaddress;domain"
+for token in m:
+        print '___'+token+'___'
+        cd('/Servers/'+token)
+
+        n = ls('/Servers/'+token+'/NetworkAccessPoints',returnMap='true')
+        for token2 in n:
+               cd('/Servers/'+token+'/NetworkAccessPoints/'+token2)
+               protocol         = get('Protocol')
+               enabled          = str(get('Enabled'))
+               listenaddress    = get('ListenAddress')
+               publicaddress    = get('PublicAddress')
+               listenport       = str(get('ListenPort'))
+               httpenabled      = str(get('HttpEnabledForThisProtocol'))
+               outboundenabled  = str(get('OutboundEnabled'))
+               tunnelingenabled = str(get('TunnelingEnabled'))
+
+               print >>f, ";".join(map(quote, [domain+'/'+token+":"+token2,token,protocol,enabled,listenport,httpenabled,outboundenabled,tunnelingenabled,listenaddress,publicaddress,domain]))
+
+f.close()
+print "~~~~COMMAND SUCCESFULL~~~~"
+
+

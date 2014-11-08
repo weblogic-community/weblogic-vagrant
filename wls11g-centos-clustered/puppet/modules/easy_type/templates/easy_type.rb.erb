@@ -1,0 +1,154 @@
+# encoding: UTF-8
+require 'easy_type'
+
+# @nodoc
+module Puppet
+  newtype(:<%= @name %>) do
+    include EasyType
+
+    desc "<%= @description %>"
+
+    ensurable
+    <% unless @no_comments %>
+    #
+    # Use set_command to set the base command given on creating, destroying and modifying
+    # the resource. This can either be an existing class method on the example_type, or if
+    # a method doesn't exist, it will translate to an os command given.
+    #
+    # Example:
+    #   def self.an_existing_class_method(commmand_string)
+    #     # DO some important stuff
+    #   end
+    #
+    # set_command(:an_existing_class_method)
+    #
+    #
+    <% end %>
+    set_command(:just_a_method)
+
+    to_get_raw_resources do
+      <% unless @no_comments %>
+      #
+      # to_get_raw_resources
+      # =====================
+      # Fill in the code needed to get an array of resources. The array must contain Hashes
+      # the Hash can have arbitrary elements. The Hash will be 'picked' by the `to_translate_to_resource`.
+      # See the definition of `to_translate_to_resource` in either the parameter or property definition.
+      #
+      # Although technically not necessary, it is logical to use the defined command. (See set_command)
+      #
+      # Example:
+      #
+      # to_get_raw_resources do
+      #   packages_string = rpm('-qa','--qf','%{NAME}, %{VERSION}-%{RELEASE}\n')
+      #   convert_csv_data_to_hash(packages_string,[:name, :version])
+      # end
+      #
+      # The convert_csv_data_to_hash, is a helper. Like the name says, it converts a comma separated string
+      # to a Hash, The second argument is an Array that contains the elements of the hash. If your string
+      # a header as the first line, you can pass nil for the header Array.
+      #
+      <% end %>
+    end
+
+    on_create do | command_builder |
+      <% unless @no_comments %>
+      #
+      # on_create
+      # =========
+      # When Puppet signals it needs to create the resource, it will call this method. The return value of
+      # this method is appended to the command given in set_command
+      #
+      # Example:
+      # --------
+      #
+      # do_command(:sql)
+      #
+      # on_create do | command_builder|
+      #    "create user #{self[:name]}"
+      # end
+      #
+      # Explanation:
+      # ------------
+      # When Puppet needs to create the resource, the sql method is called with parameter "create user username"
+      # The `on_create` method will be called in the context of a `provider`. This means you can reference the current
+      # resource through `self`.
+      #
+      # Property information
+      # ------------------------------
+      # If you have defined an `on_apply` method in any property or parameter, it's return value will be
+      # appended to the base `on_create` command. See the description of `on_apply` at the type or the property
+      #
+      #
+      <% end %>
+    end
+
+    on_modify do | command_builder|
+      <% unless @no_comments %>
+      #
+      # on_modify
+      # =========
+      # When Puppet signals it needs to modify the resource, it will call this method. The return value of
+      # this method is appended to the command given in set_command
+      #
+      # Example:
+      # --------
+      #
+      # do_command(:sql)
+      #
+      # on_modify do | command_builder|
+      #    "alter user #{self[:name]}"
+      # end
+      #
+      # Explanation
+      # ------------
+      # When Puppet needs to modify the resource, the sql method is called with parameter "alter user username"
+      # The `on_modify` method will be called in the context of a `provider`. This means you can reference the current
+      # resource through `self`.
+      #
+      # Property information
+      # ---------------------
+      # If you have defined an `on_apply` method in any property or parameter, it's return value will be
+      # appended to the base `on_modify` command. See the description of `on_apply` at the type or the property
+      #
+      #
+      <% end %>
+    end
+
+    on_destroy do |command_builder|
+      <% unless @no_comments %>
+      #
+      # on_destroy
+      # ==========
+      # When Puppet signals it needs to destroy the resource, it will call this method. The return value of
+      # this method is appended to the command given in set_command
+      #
+      # Example:
+      # --------
+      #
+      # do_command(:sql)
+      #
+      # on_destroy do | command_builder
+      #    "drop user #{name}"
+      # end
+      #
+      # Explanation
+      # -----------
+      # When Puppet needs to destroy the resource, the sql method is called with parameter "drop user username"
+      # The `on_destroy` method will be called in the context of a `provider`. 
+      #
+      # Property information
+      # --------------------
+      # in contrast to `on_create` and `on_modify`, no `on_apply` methods are called on any of the types
+      #
+      #
+      <% end %>
+    end
+
+    #
+    # property  :new_property  # For every property and parameter create a parameter file
+    #
+    parameter :name
+    # -- end of attributes -- Leave this comment if you want to use the scaffolder
+    #
+end

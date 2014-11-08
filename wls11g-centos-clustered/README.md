@@ -11,7 +11,7 @@ This is what you need to download and install to get the environment stood up.
 
  * [VagrantUP (latest)](http://www.vagrantup.com)
  * [Oracle VirtualBox (latest)](http://www.virtualbox.org)
- * [Oracle JDK 7u51](http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html) (a)
+ * [Oracle JDK 7u55](http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html) (a)
  * [Oracle WebLogic 11g 10.3.6](http://www.oracle.com/technetwork/middleware/weblogic/downloads/wls-for-dev-1703574.html) - download **wls1036_generic.jar**
  * [Git](https://help.github.com/articles/set-up-git) client
 
@@ -20,8 +20,8 @@ This is what you need to download and install to get the environment stood up.
 Software
 --------
  * CentOS 6.5 x86_64
- * Puppet 3.4.2 Future Parser
- * Oracle JDK 7 update 51
+ * Puppet 3.6.2 Future Parser
+ * Oracle JDK 7 update 55
  * WebLogic 11g 10.3.6 (wls1036_generic.jar)
  * WebLogic 11g 10.3.6 patch 17071663 (p17071663_1036_Generic.zip)
 
@@ -43,10 +43,10 @@ Get up and running
 ------------------
 To have your virtual machines up and running, issue the following commands:
 
-# Admin Server  
+# Admin Server
 vagrant up admin
 
-# Managed Server node1  
+# Managed Server node1
 vagrant up node1
 
 # Managed Server node2

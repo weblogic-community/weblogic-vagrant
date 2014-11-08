@@ -1,0 +1,15 @@
+{
+  "CHANGELOG": "4793c10a1d5b79d73e0cad5a244175c6",
+  "Gemfile": "e03c613226b172e82f351e95b8a271c2",
+  "LICENSE": "5fc4dacd9f6ebaf73a29702b56760305",
+  "Modulefile": "74ef9e25a400fbda1a3367cf6fd01aae",
+  "README.md": "df55cbd3dcb1f011ec9add3886faf97f",
+  "Rakefile": "fa51dc348c2a6365c7d07cc542d28c93",
+  "lib/puppet/provider/sysctl/darwin.rb": "78e050af31aa8eefdca19d62c4fb4a3b",
+  "lib/puppet/provider/sysctl/linux.rb": "d1933ff7544602606377ed7d1213cfc6",
+  "lib/puppet/type/sysctl.rb": "fd37645dfab3c7e75062369f7fcc1d2f",
+  "manifests/init.pp": "0624c0b995a13858b0b6f0179d9e316f",
+  "spec/spec_helper.rb": "50855d1809f00c77ccd93b093c5ef5fb",
+  "spec/unit/provider/sysctl/linux_spec.rb": "25493f3af1c3f26aeb5f2f055aab5f84",
+  "spec/unit/type/sysctl_spec.rb": "3cdf1136df66821e75e2fafb9424bc4f"
+}

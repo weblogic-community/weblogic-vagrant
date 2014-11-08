@@ -6,39 +6,19 @@
 #
 
 node 'node1.example.com', 'node2.example.com' {
-  
-  include os, ssh, java, orawls::weblogic, bsu, orautils, copydomain, nodemanager
 
-  Class['java'] -> Class['orawls::weblogic'] 
+  include os, ssh, java, orawls::weblogic, orautils, bsu, copydomain, nodemanager
+
+  Class['java'] -> Class['orawls::weblogic']
 }
 
 # operating settings for Middleware
 class os {
 
-  notify { "class os ${operatingsystem}":} 
-
   $default_params = {}
-  $host_instances = hiera('hosts', [])
+  $host_instances = hiera('hosts', {})
   create_resources('host',$host_instances, $default_params)
 
-  exec { "create swap file":
-    command => "/bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=8192",
-    creates => "/var/swap.1",
-  }
-
-  exec { "attach swap file":
-    command => "/sbin/mkswap /var/swap.1 && /sbin/swapon /var/swap.1",
-    require => Exec["create swap file"],
-    unless => "/sbin/swapon -s | grep /var/swap.1",
-  }
-
-  #add swap file entry to fstab
-  exec {"add swapfile entry to fstab":
-    command => "/bin/echo >>/etc/fstab /var/swap.1 swap swap defaults 0 0",
-    require => Exec["attach swap file"],
-    user => root,
-    unless => "/bin/grep '^/var/swap.1' /etc/fstab 2>/dev/null",
-  }
 
   service { iptables:
         enable    => false,
@@ -108,7 +88,7 @@ class ssh {
     ensure => "directory",
     alias  => "wls-ssh-dir",
   }
-  
+
   file { "/home/wls/.ssh/id_rsa.pub":
     ensure  => present,
     owner   => "wls",
@@ -117,7 +97,7 @@ class ssh {
     source  => "/vagrant/ssh/id_rsa.pub",
     require => File["wls-ssh-dir"],
   }
-  
+
   file { "/home/wls/.ssh/id_rsa":
     ensure  => present,
     owner   => "wls",
@@ -126,7 +106,7 @@ class ssh {
     source  => "/vagrant/ssh/id_rsa",
     require => File["wls-ssh-dir"],
   }
-  
+
   file { "/home/wls/.ssh/authorized_keys":
     ensure  => present,
     owner   => "wls",
@@ -134,14 +114,11 @@ class ssh {
     mode    => "644",
     source  => "/vagrant/ssh/id_rsa.pub",
     require => File["wls-ssh-dir"],
-  }        
+  }
 }
-
 
 class java {
   require os
-
-  notify { 'class java':} 
 
   $remove = [ "java-1.7.0-openjdk.x86_64", "java-1.6.0-openjdk.x86_64" ]
 
@@ -151,44 +128,37 @@ class java {
 
   include jdk7
 
-  jdk7::install7{ 'jdk1.7.0_45':
-      version              => "7u45" , 
-      fullVersion          => "jdk1.7.0_45",
-      alternativesPriority => 18000, 
-      x64                  => true,
-      downloadDir          => "/data/install",
-      urandomJavaFix       => true,
-      sourcePath           => "/software",
+  jdk7::install7{ 'jdk1.7.0_55':
+      version                   => "7u55" ,
+      fullVersion               => "jdk1.7.0_55",
+      alternativesPriority      => 18000,
+      x64                       => true,
+      downloadDir               => "/var/tmp/install",
+      urandomJavaFix            => true,
+      rsakeySizeFix             => true,
+      sourcePath                => "/software",
   }
+
 
 }
 
 class bsu {
   require orawls::weblogic
-
-  notify { 'class bsu':} 
   $default_params = {}
-  $bsu_instances = hiera('bsu_instances', [])
+  $bsu_instances = hiera('bsu_instances', {})
   create_resources('orawls::bsu',$bsu_instances, $default_params)
 }
 
 class copydomain {
   require orawls::weblogic, bsu
-
-
-  notify { 'class copydomain':} 
   $default_params = {}
-  $copy_instances = hiera('copy_instances', [])
+  $copy_instances = hiera('copy_instances', {})
   create_resources('orawls::copydomain',$copy_instances, $default_params)
-
 }
-
 
 class nodemanager {
   require orawls::weblogic, bsu, copydomain
-
-  notify { 'class nodemanager':} 
   $default_params = {}
-  $nodemanager_instances = hiera('nodemanager_instances', [])
+  $nodemanager_instances = hiera('nodemanager_instances', {})
   create_resources('orawls::nodemanager',$nodemanager_instances, $default_params)
 }

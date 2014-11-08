@@ -3,34 +3,49 @@
 # install and configures the nodemanager
 #
 define orawls::nodemanager (
-  $version                = hiera('wls_version'             , 1111),  # 1036|1111|1211|1212
-  $weblogic_home_dir      = hiera('wls_weblogic_home_dir'   , undef),
-  $nodemanager_port       = hiera('domain_nodemanager_port' , 5556),
-  $nodemanager_address    = undef,
-  $domain_name            = hiera('domain_name'             , undef),
-  $jdk_home_dir           = hiera('wls_jdk_home_dir'        , undef), # /usr/java/jdk1.7.0_45
-  $os_user                = hiera('wls_os_user'             , undef), # oracle
-  $os_group               = hiera('wls_os_group'            , undef), # dba
-  $download_dir           = hiera('wls_download_dir'        , undef), # /data/install
-  $log_dir                = hiera('wls_log_dir'             , undef), # /data/logs
-  $log_output             = false, # true|false
+  $version                               = hiera('wls_version'                   , 1111),  # 1036|1111|1211|1212
+  $middleware_home_dir                   = hiera('wls_middleware_home_dir'), # /opt/oracle/middleware11gR1
+  $weblogic_home_dir                     = hiera('wls_weblogic_home_dir'),
+  $nodemanager_port                      = hiera('domain_nodemanager_port'       , 5556),
+  $nodemanager_address                   = undef,
+  $jsse_enabled                          = hiera('wls_jsse_enabled'              , false),
+  $custom_trust                          = hiera('wls_custom_trust'              , false),
+  $trust_keystore_file                   = hiera('wls_trust_keystore_file'       , undef),
+  $trust_keystore_passphrase             = hiera('wls_trust_keystore_passphrase' , undef),
+  $custom_identity                       = false,
+  $custom_identity_keystore_filename     = undef,
+  $custom_identity_keystore_passphrase   = undef,
+  $custom_identity_alias                 = undef,
+  $custom_identity_privatekey_passphrase = undef,
+  $wls_domains_dir                       = hiera('wls_domains_dir'               , undef),
+  $domain_name                           = hiera('domain_name'                   , undef),
+  $jdk_home_dir                          = hiera('wls_jdk_home_dir'), # /usr/java/jdk1.7.0_45
+  $os_user                               = hiera('wls_os_user'), # oracle
+  $os_group                              = hiera('wls_os_group'), # dba
+  $download_dir                          = hiera('wls_download_dir'), # /data/install
+  $log_dir                               = hiera('wls_log_dir'                   , undef), # /data/logs
+  $log_output                            = false, # true|false
+  $sleep                                 = hiera('wls_nodemanager_sleep'         , 20), # default sleep time
 )
-
 {
+
+  if ( $wls_domains_dir == undef ) {
+    $domains_dir = "${middleware_home_dir}/user_projects/domains"
+  } else {
+    $domains_dir =  $wls_domains_dir
+  }
+
   if ( $version == 1111 or $version == 1036 or $version == 1211 ) {
     $nodeMgrHome = "${weblogic_home_dir}/common/nodemanager"
-
-  } elsif $version == 1212 {
-
-    if $::override_weblogic_domain_folder == undef {
-      $nodeMgrHome = "${weblogic_home_dir}/../user_projects/domains/${domain_name}/nodemanager"
-    } else {
-      $nodeMgrHome = "${::override_weblogic_domain_folder}/domains/${domain_name}/nodemanager"
-    }
-
+    $startHome   = "${weblogic_home_dir}/server/bin"
+  } elsif $version == 1212 or $version == 1213 {
+    $nodeMgrHome = "${domains_dir}/${domain_name}/nodemanager"
+    $startHome   = "${domains_dir}/${domain_name}/bin"
   } else {
     $nodeMgrHome = "${weblogic_home_dir}/common/nodemanager"
+    $startHome   = "${weblogic_home_dir}/server/bin"
   }
+
   $exec_path    = "${jdk_home_dir}/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:"
 
   if $log_dir == undef {
@@ -47,13 +62,13 @@ define orawls::nodemanager (
           cwd     => $nodeMgrHome,
         }
       }
-      if !defined(File["${log_dir}"]) {
-        file { "${log_dir}":
+      if !defined(File[$log_dir]) {
+        file { $log_dir:
           ensure  => directory,
           recurse => false,
           replace => false,
-          owner => $os_user,
-          group => $os_group,
+          owner   => $os_user,
+          group   => $os_group,
           require => Exec["create ${log_dir} directory"],
         }
       }
@@ -61,87 +76,74 @@ define orawls::nodemanager (
   }
 
   case $::kernel {
-    Linux: {
+    'Linux': {
       $checkCommand   = "/bin/ps -ef | grep -v grep | /bin/grep 'weblogic.NodeManager'"
-      $nativeLib      = "linux/x86_64"
+      $nativeLib      = 'linux/x86_64'
       $suCommand      = "su -l ${os_user}"
-      $java_statement = "java"
+      $java_statement = 'java'
     }
-    SunOS: {
+    'SunOS': {
       $checkCommand   = "/usr/ucb/ps wwxa | grep -v grep | /bin/grep 'weblogic.NodeManager'"
-      $nativeLib      = "solaris/x64"
+      $nativeLib      = 'solaris/x64'
       $suCommand      = "su - ${os_user}"
-      $java_statement = "java -d64"
+      $java_statement = 'java -d64'
+    }
+    default: {
+      fail("Unrecognized operating system ${::kernel}, please use it on a Linux host")
     }
   }
 
   Exec {
-     logoutput => $log_output,
+    logoutput => $log_output,
+  }
+
+  if $custom_identity == true {
+    $replaceNodemanagerProperties = false
+  } else {
+    $replaceNodemanagerProperties = true
   }
 
   # nodemanager is part of the domain creation
-  if $version == "1212" {
-
-    if $::override_weblogic_domain_folder == undef {
-      $domainsHome = "${weblogic_home_dir}/../user_projects/domains"
-    } else {
-      $domainsHome = "${::override_weblogic_domain_folder}/domains"
-    }
-
-    exec { "startNodemanager 1212 ${title}":
-      command => "nohup ${domainsHome}/${domain_name}/bin/startNodeManager.sh &",
-      unless  => "${checkCommand}",
-      path    => $exec_path,
-      user    => $os_user,
-      group   => $os_group,
-      cwd     => $nodeMgrHome,
-    }
-
-    exec { "sleep 20 sec for wlst exec ${title}":
-      command     => "/bin/sleep 20",
-      subscribe   => Exec["startNodemanager 1212 ${title}"],
-      refreshonly => true,
-      path        => $exec_path,
-      user        => $os_user,
-      group       => $os_group,
-      cwd         => $nodeMgrHome,
-    }
-  } elsif (  $version == 1111 or $version == 1036 or $version == 1211 ){
-
-
-    $javaCommand = "${java_statement} -client -Xms32m -Xmx200m -XX:PermSize=128m -XX:MaxPermSize=256m -DListenPort=${nodemanager_port} -Dbea.home=${weblogic_home_dir} -Dweblogic.nodemanager.JavaHome=${jdk_home_dir} -Djava.security.policy=${weblogic_home_dir}/server/lib/weblogic.policy -Xverify:none weblogic.NodeManager -v"
-
+  if ( $version == 1111 or $version == 1036 or $version == 1211 ){
     file { "nodemanager.properties ux ${title}":
-      path    => "${nodeMgrHome}/nodemanager.properties",
       ensure  => present,
-      replace => true,
-      content => template("orawls/nodemgr/nodemanager.properties.erb"),
+      path    => "${nodeMgrHome}/nodemanager.properties",
+      replace => $replaceNodemanagerProperties,
+      content => template('orawls/nodemgr/nodemanager.properties.erb'),
       owner   => $os_user,
       group   => $os_group,
+      before  => Exec["startNodemanager ${title}"],
     }
+  }
 
-    exec { "execwlst ux nodemanager ${title}":
-      command     => "/usr/bin/nohup ${javaCommand} &",
-      environment => [
-        "CLASSPATH=${weblogic_home_dir}/server/lib/weblogic.jar",
-        "JAVA_HOME=${jdk_home_dir}",
-        "LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:${weblogic_home_dir}/server/native/${nativeLib}"],
-      unless      => "${checkCommand}",
-      path        => $exec_path,
-      user        => $os_user,
-      group       => $os_group,
-      cwd         => $nodeMgrHome,
-      require     => File["nodemanager.properties ux ${title}"],
-    }
+  if ( $custom_trust == true ) {
+    $trust_env = "-Dweblogic.security.TrustKeyStore=CustomTrust -Dweblogic.security.CustomTrustKeyStoreFileName=${trust_keystore_file} -Dweblogic.security.CustomTrustKeystorePassPhrase=${trust_keystore_passphrase}"
+  } else {
+    $trust_env = ''
+  }
 
-    exec { "sleep 5 sec for wlst exec ${title}":
-      command     => "/bin/sleep 5",
-      subscribe   => Exec["execwlst ux nodemanager ${title}"],
+  if $jsse_enabled == true {
+    $env = "JAVA_OPTIONS=-Dweblogic.ssl.JSSEEnabled=true -Dweblogic.security.SSL.enableJSSE=true ${trust_env}"
+  } else {
+    $env = "JAVA_OPTIONS=-Dweblogic.ssl.JSSEEnabled=false -Dweblogic.security.SSL.enableJSSE=false ${trust_env}"
+  }
+
+  exec { "startNodemanager ${title}":
+    command     => "nohup ${startHome}/startNodeManager.sh &",
+    environment => [ $env, "JAVA_HOME=${jdk_home_dir}", 'JAVA_VENDOR=Oracle' ],
+    unless      => $checkCommand,
+    path        => $exec_path,
+    user        => $os_user,
+    group       => $os_group,
+    cwd         => $nodeMgrHome,
+  }
+
+  exec { "sleep ${sleep} sec for wlst exec ${title}":
+      command     => "/bin/sleep ${sleep}",
+      subscribe   => Exec["startNodemanager ${title}"],
       refreshonly => true,
       path        => $exec_path,
       user        => $os_user,
       group       => $os_group,
-      cwd         => $nodeMgrHome,
-    }
   }
 }

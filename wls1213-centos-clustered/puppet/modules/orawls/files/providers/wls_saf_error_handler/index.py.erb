@@ -1,0 +1,24 @@
+
+
+def quote(text):
+    if text:
+        return "\"" + str(text).replace("\"", "\"\"") + "\""
+    else: 
+        return ""
+
+m = ls('/JMSSystemResources',returnMap='true')
+
+f = open("/tmp/wlstScript.out", "w")
+print >>f, "name;jmsmodule;policy;logformat;errordestination;domain"
+for token in m:
+    print '_jmsmodule_'+token+'___'
+    cd('/JMSSystemResources/'+token+'/JMSResource/'+token)
+
+    n = ls('SAFErrorHandlings',returnMap='true')
+    for token2 in n:
+        cd('/JMSSystemResources/'+token+'/JMSResource/'+token+'/SAFErrorHandlings/'+token2)
+        print >>f, ";".join(map(quote, [domain+'/'+token+":"+token2,token,cmo.getPolicy(),cmo.getLogFormat(),cmo.getSAFErrorDestination(),domain]))
+ 
+f.close()
+print "~~~~COMMAND SUCCESFULL~~~~"
+

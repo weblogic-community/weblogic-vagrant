@@ -1,0 +1,27 @@
+# check the domain else we need to skip this (done in wls_access.rb)
+real_domain='<%= domain %>'
+
+
+
+machineName    = '<%= machine_name %>'
+
+edit()
+startEdit()
+
+try:
+    editService.getConfigurationManager().removeReferencesToBean(getMBean('/Machines/'+machineName))
+    cd('/')
+    cmo.destroyMachine(getMBean('/Machines/'+machineName))
+
+    save()
+    activate()
+    print "~~~~COMMAND SUCCESFULL~~~~"
+
+except:
+    print "Unexpected error:", sys.exc_info()[0]
+    undo('true','y')
+    stopEdit('y')
+    print "~~~~COMMAND FAILED~~~~"
+    raise
+
+

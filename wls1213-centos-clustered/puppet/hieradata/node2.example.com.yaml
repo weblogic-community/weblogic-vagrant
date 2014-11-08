@@ -1,0 +1,55 @@
+---
+
+logoutput:                      &logoutput          true
+orawls::weblogic::log_output:   *logoutput
+
+wls_os_user:              &wls_os_user              "oracle"
+wls_weblogic_user:        &wls_weblogic_user        "weblogic"
+wls_weblogic_home_dir:    &wls_weblogic_home_dir    "/opt/oracle/middleware12c/wlserver"
+wls_middleware_home_dir:  &wls_middleware_home_dir  "/opt/oracle/middleware12c"
+
+# when you have just one domain on a server
+domain_name:                &domain_name                "Wls1213"
+domain_adminserver:         &domain_adminserver         "AdminServer"
+domain_adminserver_address: &domain_adminserver_address "10.10.10.10"
+domain_adminserver_port:    &domain_adminserver_port    7001
+domain_nodemanager_port:    &domain_nodemanager_port    5556
+domain_wls_password:        &domain_wls_password        "weblogic1"
+
+orautils::osDomainParam:          *domain_name
+orautils::osDomainPathParam:      "/opt/oracle/wlsdomains/domains/Wls1213"
+orautils::nodeMgrPathParam:       "/opt/oracle/wlsdomains/domains/Wls1213/bin"
+orautils::nodeMgrAddressParam:    *domain_adminserver_address
+orautils::wlsPasswordParam:       *domain_wls_password
+orautils::wlsAdminServerParam:    *domain_adminserver
+
+orautils::nodeMgrAddressParam:    "10.10.10.200"
+
+# custom trust
+orautils::customTrust:             true
+orautils::trustKeystoreFile:       '/vagrant/truststore.jks'
+orautils::trustKeystorePassphrase: 'welcome'
+
+# used by nodemanager, control and domain creation
+wls_custom_trust:                  &wls_custom_trust              true
+wls_trust_keystore_file:           &wls_trust_keystore_file       '/vagrant/truststore.jks'
+wls_trust_keystore_passphrase:     &wls_trust_keystore_passphrase 'welcome'
+
+
+# copy domains to other nodes
+copy_instances:
+  'wlsDomain':
+     log_output:              *logoutput
+
+# create and startup the nodemanager
+nodemanager_instances:
+  'nodemanager':
+    log_output:                            *logoutput
+    nodemanager_address:                   "10.10.10.200"
+    custom_identity:                       true
+    custom_identity_keystore_filename:     '/vagrant/identity_node2.jks'
+    custom_identity_keystore_passphrase:   'welcome'
+    custom_identity_alias:                 'node2'
+    custom_identity_privatekey_passphrase: 'welcome'
+
+

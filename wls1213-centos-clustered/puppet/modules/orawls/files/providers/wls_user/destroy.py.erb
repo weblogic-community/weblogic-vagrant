@@ -1,0 +1,24 @@
+# check the domain else we need to skip this (done in wls_access.rb)
+real_domain='<%= domain %>'
+
+
+
+name                   = '<%= user_name %>'
+realm                  = '<%= realm %>'
+authenticationprovider = '<%= authenticationprovider %>'
+
+try:
+    cd('/')
+    atnr=cmo.getSecurityConfiguration().getDefaultRealm().lookupAuthenticationProvider(authenticationprovider)
+
+    print 'drop user: ',name
+    atnr.removeUser(name)
+    print "~~~~COMMAND SUCCESFULL~~~~"
+
+except:
+    print "Unexpected error:", sys.exc_info()[0]
+    print "~~~~COMMAND FAILED~~~~"
+    raise
+
+
+

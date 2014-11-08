@@ -1,0 +1,68 @@
+
+
+def quote(text):
+    if text:
+        return "\"" + str(text).replace("\"", "\"\"") + "\""
+    else:
+        return ""
+
+m = ls('/JDBCSystemResources',returnMap='true')
+
+f = open("/tmp/wlstScript.out", "w")
+print >>f, "name;target;targettype;drivername;jndinames;url;usexa;user;testtablename;globaltransactionsprotocol;extraproperties;maxcapacity;initialcapacity;domain;fanenabled;onsnodelist"
+for token in m:
+        print '___'+token+'___'
+        cd('/JDBCSystemResources/'+token + '/JDBCResource/' + token)
+
+        cd('/JDBCSystemResources/' + token + '/JDBCResource/' + token + '/JDBCDriverParams/' + token )
+        url      = get('Url')
+        driver   = get('DriverName')
+        usexa    = str(get('UseXaDataSourceInterface'))
+        #password = get('Password')
+
+        cd('/JDBCSystemResources/' + token + '/JDBCResource/' + token + '/JDBCConnectionPoolParams/' + token )
+        maxcapacity     = get('MaxCapacity')
+        initialcapacity = get('InitialCapacity')
+        if not (initialcapacity):
+           initialcapacity = '0'
+
+        cd('/JDBCSystemResources/' + token + '/JDBCResource/' + token + '/JDBCDataSourceParams/' + token )
+        jndinames = get('JNDINames')
+
+        cd('/JDBCSystemResources/' + token + '/JDBCResource/' + token + '/JDBCConnectionPoolParams/' + token )
+        testTableName = get('TestTableName')
+
+        cd('/JDBCSystemResources/' + token + '/JDBCResource/' + token + '/JDBCDriverParams/' + token + '/Properties/' + token + '/Properties/user')
+        user = get('Value')
+
+        cd('/JDBCSystemResources/' + token + '/JDBCResource/' + token + '/JDBCDataSourceParams/' + token)
+        globalTransactionsProtocol = get('GlobalTransactionsProtocol')
+
+
+        try:
+            cd('/JDBCSystemResources/' + token + '/JDBCResource/' + token + '/JDBCOracleParams/' + token )
+            fanenabled = str(get('FanEnabled'))
+            onsnodelist = get('OnsNodeList')
+        except:
+            # In Case any Datasource Type does not include JDBCOracleParams
+            fanenabled = '0'
+            onsnodelist = ''
+
+        p = ls('/JDBCSystemResources/' + token + '/JDBCResource/' + token + '/JDBCDriverParams/' + token + '/Properties/' + token + '/Properties',returnMap='true')
+        properties     = []
+        for token3 in p:
+            if not token3 == 'user':
+               cd('/JDBCSystemResources/' + token + '/JDBCResource/' + token + '/JDBCDriverParams/' + token + '/Properties/' + token + '/Properties/'+token3)
+               properties.append(token3+"="+str(get('Value')))
+
+        n = ls('/SystemResources/'+token+'/Targets',returnMap='true')
+        target     = []
+        targetType = []
+        for token2 in n:
+               target.append(token2)
+               cd('/SystemResources/'+token+'/Targets/'+token2)
+               targetType.append(get('Type'))
+
+        print >>f, ";".join(map(quote, [domain+'/'+token,','.join(target),','.join(targetType),driver,','.join(jndinames),url,usexa,user,testTableName,globalTransactionsProtocol,','.join(properties),maxcapacity,initialcapacity,domain,fanenabled,onsnodelist]))
+f.close()
+print "~~~~COMMAND SUCCESFULL~~~~"

@@ -1,0 +1,28 @@
+{
+  "name": "adrien-filemapper",
+  "version": "1.1.2",
+  "source": "https://github.com/adrienthebo/puppet-filemapper",
+  "author": "Adrien Thebo <adrien@somethingsinistral.net>",
+  "license": "Apache 2.0",
+  "summary": "Puppet provider file manipulation extension",
+  "description": "Developer extension for permitting complex manipulation of file contents as resources",
+  "project_page": "https://github.com/adrienthebo/puppet-filemapper",
+  "dependencies": [
+
+  ],
+  "types": [
+
+  ],
+  "checksums": {
+    "CHANGELOG": "cdfbbaa45dc77690f19df040ed727c49",
+    "Gemfile": "721c5af7dae07bd8a03dffe91012215a",
+    "Guardfile": "ae2b46f830699deb47aea8e6ae1f52fa",
+    "LICENSE": "b43880e14353cbc12cf3981fb93a0944",
+    "Modulefile": "eb7d4ae010b211304b119108330b1048",
+    "README.markdown": "95932a9750496e0c520a4952741fa67c",
+    "lib/puppetx/filemapper.rb": "461dbcb13325f04996f9ae5e0cea1406",
+    "manifests/init.pp": "19aee637a424567c7ef393b7212414b6",
+    "spec/spec_helper.rb": "0de55444b0c64126aaa4669875d7ec83",
+    "spec/unit/puppetx/filemapper_spec.rb": "43424eb34d6d18feceb56374dec39efb"
+  }
+}

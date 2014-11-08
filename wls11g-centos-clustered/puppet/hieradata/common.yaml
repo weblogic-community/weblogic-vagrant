@@ -2,22 +2,19 @@
 messageDefault: 'default'
 messageEnv:     'common'
 
-
 hosts:
-  'admin':
+  'localhost':
+    ip:                "127.0.0.1"
+    host_aliases:      'localhost.localdomain,localhost4,localhost4.localdomain4'
+  'admin.example.com':
     ip:                "10.10.10.10"
-    host_aliases:      - 'admin.example.com'
-                       - 'admin'
-  'node1':
+    host_aliases:      'admin'
+  'node1.example.com':
     ip:                "10.10.10.100"
-    host_aliases:      - 'node1.example.com'
-                       - 'node1'
-  'node2':
+    host_aliases:      'node1'
+  'node2.example.com':
     ip:                "10.10.10.200"
-    host_aliases:      - 'node2.example.com'
-                       - 'node2'
-
-apps_config_dir:    "/vagrant/puppet/apps"
+    host_aliases:      'node2'
 
 # global WebLogic vars
 wls_oracle_base_home_dir: &wls_oracle_base_home_dir "/opt/oracle"
@@ -29,13 +26,16 @@ wls_version:              &wls_version              1036
 # global OS vars
 wls_os_user:              &wls_os_user              "wls"
 wls_os_group:             &wls_os_group             "dba"
-wls_download_dir:         &wls_download_dir         "/data/install"
+wls_download_dir:         &wls_download_dir         "/var/tmp/install"
 wls_source:               &wls_source               "/software"
-wls_jdk_home_dir:         &wls_jdk_home_dir         "/usr/java/jdk1.7.0_45"
-wls_log_dir:              &wls_log_dir              "/data/logs"
+wls_jdk_home_dir:         &wls_jdk_home_dir         "/usr/java/latest"
+wls_log_dir:              &wls_log_dir              "/var/log/weblogic"
+
+wls_domains_dir:          &wls_domains_dir          '/opt/oracle/wlsdomains/domains'
+wls_apps_dir:             &wls_apps_dir             '/opt/oracle/wlsdomains/applications'
 
 
-#WebLogic installation variables 
+#WebLogic installation variables
 orawls::weblogic::version:              *wls_version
 orawls::weblogic::filename:             "wls1036_generic.jar"
 orawls::weblogic::middleware_home_dir:  *wls_middleware_home_dir
@@ -50,6 +50,9 @@ orawls::weblogic::download_dir:         *wls_download_dir
 orawls::weblogic::source:               *wls_source
 orawls::weblogic::remote_file:          false
 
+orawls::weblogic::wls_domains_dir:      *wls_domains_dir
+orawls::weblogic::wls_apps_dir:         *wls_apps_dir
+
 
 # patches for WebLogic 10.3.6
 bsu_instances:
@@ -61,6 +64,8 @@ bsu_instances:
 
 # FMW installation on top of WebLogic 10.3.6
 fmw_installations:
+
+opatch_instances:
 
 # handy WebLogic scripts in /opt/scripts/wls
 orautils::osOracleHomeParam:      *wls_oracle_base_home_dir
@@ -80,5 +85,4 @@ orautils::nodeMgrPortParam:       5556
 orautils::wlsUserParam:           *wls_weblogic_user
 orautils::wlsPasswordParam:       "weblogic1"
 orautils::wlsAdminServerParam:    "AdminServer"
-
 

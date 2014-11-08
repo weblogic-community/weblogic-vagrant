@@ -1,74 +1,395 @@
 ---
 messageEnv: 'admin'
 
-weblogic_apps:
-  - one
-  - two
+logoutput:                &logoutput                true
 
-orawls::weblogic::log_output:   true
+orawls::weblogic::log_output:   *logoutput
 
-logoutput:                     &logoutput                     true
+wls_os_user:              &wls_os_user              "wls"
+wls_os_group:             &wls_os_group             "dba"
+wls_weblogic_user:        &wls_weblogic_user        "weblogic"
+wls_weblogic_home_dir:    &wls_weblogic_home_dir    "/opt/oracle/middleware11g/wlserver_10.3"
+wls_middleware_home_dir:  &wls_middleware_home_dir  "/opt/oracle/middleware11g"
+
 
 # when you have just one domain on a server
-domain_name:                "Wls1036"
-domain_adminserver:         "AdminServer"
-domain_adminserver_address: "10.10.10.10"
-domain_adminserver_port:    7001
-domain_nodemanager_port:    5556
-domain_wls_password:        "weblogic1"
+domain_name:                &domain_name                "Wls1036"
+domain_adminserver:         &domain_adminserver         "AdminServer"
+domain_adminserver_address: &domain_adminserver_address "10.10.10.10"
+domain_adminserver_port:    &domain_adminserver_port    7001
+domain_nodemanager_port:    &domain_nodemanager_port    5556
+domain_wls_password:        &domain_wls_password        "weblogic1"
 domain_user_config_file:    "/home/oracle/oracle-Wls1036-WebLogicConfig.properties"
 domain_user_key_file:       "/home/oracle/oracle-Wls1036-WebLogicKey.properties"
 
-# create a standard domain
+orautils::osDomainParam:          *domain_name
+orautils::nodeMgrAddressParam:    *domain_adminserver_address
+orautils::wlsPasswordParam:       *domain_wls_password
+orautils::wlsAdminServerParam:    *domain_adminserver
+orautils::osDomainPathParam:      "/opt/oracle/wlsdomains/domains/Wls1036"
+orautils::nodeMgrPathParam:       "/opt/oracle/middleware11g/wlserver_10.3/server/bin"
+
+
+# create a standard domain with custom identity for the adminserver
 domain_instances:
-  'wlsDomain':
-     domain_template:          "standard"
-     development_mode:         false
-     log_output:               *logoutput
+  'Wls1036':
+    domain_template:                       "standard"
+    development_mode:                      false
+    log_output:                            *logoutput
+
+wls_setting_instances:
+  'default':
+    user:               *wls_os_user
+    weblogic_home_dir:  *wls_weblogic_home_dir
+    connect_url:        "t3://10.10.10.10:7001"
+    weblogic_user:      *wls_weblogic_user
+    weblogic_password:  *domain_wls_password
+    require:            Orawls::Domain[Wls1036]
 
 # pack domains
 pack_domain_instances:
   'wlsDomain':
-     log_output:               *logoutput
+    log_output:           *logoutput
 
 # create and startup the nodemanager
 nodemanager_instances:
   'nodemanager':
-     log_output:           *logoutput
-     nodemanager_address:  "10.10.10.10"
+    log_output:                            *logoutput
+    nodemanager_address:                   *domain_adminserver_address
 
 # startup adminserver for extra configuration
 control_instances:
   'startWLSAdminServer':
-     domain_dir:           "/opt/oracle/wlsdomains/domains/Wls1036"
+     domain_name:          *domain_name
      server_type:          'admin'
      target:               'Server'
-     server:               'AdminServer'
+     server:               *domain_adminserver
      action:               'start'
      log_output:           *logoutput
 
 # create password file for WLST utility
 userconfig_instances:
-  'Wls12c':
+  'Wls11g':
      log_output:           *logoutput
-     user_config_dir:      '/home/wls'
+     user_config_dir:      '/home/oracle'
+
+
+wls_domain_instances:
+  'Wls1036':
+    ensure:                      'present'
+    jpa_default_provider:        'org.eclipse.persistence.jpa.PersistenceProvider'
+    jta_max_transactions:        '20000'
+    jta_transaction_timeout:     '30'
+    log_file_min_size:           '5000'
+    log_filecount:               '10'
+    log_filename:                '/var/log/weblogic/Wls1036.log'
+    log_number_of_files_limited: '1'
+    log_rotate_logon_startup:    '1'
+    log_rotationtype:            'bySize'
+    security_crossdomain:        '1'
+
+# subscribe on a domain change and restart the adminserver
+wls_adminserver_instances:
+  'AdminServer_Wls1036':
+    ensure:                    'running'
+    server_name:               *domain_adminserver
+    domain_name:               *domain_name
+    domain_path:               "/opt/oracle/wlsdomains/domains/Wls1036"
+    os_user:                   *wls_os_user
+    weblogic_home_dir:         *wls_weblogic_home_dir
+    weblogic_user:             *wls_weblogic_user
+    weblogic_password:         *domain_wls_password
+    jdk_home_dir:              '/usr/java/latest'
+    nodemanager_address:       *domain_adminserver_address
+    nodemanager_port:          *domain_nodemanager_port
+    refreshonly:               true
+    subscribe:                 Wls_domain[Wls1036]
 
 # create 2 machines
 machines_instances:
-  'createMachine_node1':
-     log_output:           *logoutput
-     weblogic_type:        "machine"
-     weblogic_object_name: "Node1"
-     script:               'createMachine.py'
-     params:
-        - "machineName      = 'Node1'"
-        - "machineDnsName   = '10.10.10.100'"
-  'createMachine_node2':
-     log_output:           *logoutput
-     weblogic_type:        "machine"
-     weblogic_object_name: "Node2"
-     script:               'createMachine.py'
-     params:
-        - "machineName      = 'Node2'"
-        - "machineDnsName   = '10.10.10.200'"
+  'Node1':
+    ensure:         'present'
+    listenaddress:  '10.10.10.100'
+    listenport:     '5556'
+    machinetype:    'UnixMachine'
+    nmtype:         'SSL'
+  'Node2':
+    ensure:         'present'
+    listenaddress:  '10.10.10.200'
+    listenport:     '5556'
+    machinetype:    'UnixMachine'
+    nmtype:         'SSL'
+
+server_vm_args_permsize:      &server_vm_args_permsize     '-XX:PermSize=256m'
+server_vm_args_max_permsize:  &server_vm_args_max_permsize '-XX:MaxPermSize=256m'
+server_vm_args_memory:        &server_vm_args_memory       '-Xms752m'
+server_vm_args_max_memory:    &server_vm_args_max_memory   '-Xmx752m'
+
+server_instances:
+  'wlsServer1':
+    ensure:                                'present'
+    arguments:
+           - *server_vm_args_permsize
+           - *server_vm_args_max_permsize
+           - *server_vm_args_memory
+           - *server_vm_args_max_memory
+           - '-Dweblogic.Stdout=/var/log/weblogic/wlsServer1.out'
+           - '-Dweblogic.Stderr=/var/log/weblogic/wlsServer1_err.out'
+    listenaddress:                         '10.10.10.100'
+    listenport:                            '8001'
+    logfilename:                           '/var/log/weblogic/wlsServer1.log'
+    machine:                               'Node1'
+    sslenabled:                            '1'
+    ssllistenport:                         '8201'
+    sslhostnameverificationignored:        '1'
+    jsseenabled:                           '1'
+    custom_identity:                       '1'
+    custom_identity_keystore_filename:     '/vagrant/identity_node1.jks'
+    custom_identity_keystore_passphrase:   'welcome'
+    custom_identity_alias:                 'node1'
+    custom_identity_privatekey_passphrase: 'welcome'
+    trust_keystore_file:                   *wls_trust_keystore_file
+    trust_keystore_passphrase:             *wls_trust_keystore_passphrase
+    require:                               Wls_machine[Node1]
+  'wlsServer2':
+    ensure:                                'present'
+    arguments:
+           - *server_vm_args_permsize
+           - *server_vm_args_max_permsize
+           - *server_vm_args_memory
+           - *server_vm_args_max_memory
+           - '-Dweblogic.Stdout=/var/log/weblogic/wlsServer2.out'
+           - '-Dweblogic.Stderr=/var/log/weblogic/wlsServer2_err.out'
+    listenport:                            '8001'
+    logfilename:                           '/var/log/weblogic/wlsServer2.log'
+    machine:                               'Node2'
+    sslenabled:                            '1'
+    ssllistenport:                         '8201'
+    sslhostnameverificationignored:        '1'
+    listenaddress:                         '10.10.10.200'
+    jsseenabled:                           '1'
+    custom_identity:                       '1'
+    custom_identity_keystore_filename:     '/vagrant/identity_node2.jks'
+    custom_identity_keystore_passphrase:   'welcome'
+    custom_identity_alias:                 'node2'
+    custom_identity_privatekey_passphrase: 'welcome'
+    trust_keystore_file:                   *wls_trust_keystore_file
+    trust_keystore_passphrase:             *wls_trust_keystore_passphrase
+    require:                               Wls_machine[Node2]
+
+server_channel_instances:
+  'wlsServer1:Channel-Cluster':
+    ensure:           'present'
+    enabled:          '1'
+    httpenabled:      '1'
+    listenaddress:    '10.10.10.100'
+    listenport:       '8003'
+    outboundenabled:  '0'
+    protocol:         'cluster-broadcast'
+    publicaddress:    '10.10.10.100'
+    tunnelingenabled: '0'
+    require:          Wls_server[wlsServer1]
+  'wlsServer2:Channel-Cluster':
+    ensure:           'present'
+    enabled:          '1'
+    httpenabled:      '1'
+    listenport:       '8003'
+    outboundenabled:  '0'
+    protocol:         'cluster-broadcast'
+    tunnelingenabled: '0'
+    require:          Wls_server[wlsServer2]
+
+
+cluster_instances:
+  'WebCluster':
+    ensure:                     'present'
+    migrationbasis:             'consensus'
+    servers:
+      - 'wlsServer1'
+      - 'wlsServer2'
+    messagingmode:              'unicast'
+    unicastbroadcastchannel:    'Channel-Cluster'
+    require:
+      - Wls_server[wlsServer1]
+      - Wls_server[wlsServer2]
+      - Wls_server_channel[wlsServer1:Channel-Cluster]
+      - Wls_server_channel[wlsServer2:Channel-Cluster]
+
+file_persistence_folders:
+   '/opt/oracle/wlsdomains/domains/Wls1036/persistence1':
+      ensure:     directory
+      recurse:    false
+      replace:    false
+      mode:       '0775'
+      owner:      'wls'
+      group:      'dba'
+   '/opt/oracle/wlsdomains/domains/Wls1036/persistence2':
+      ensure:     directory
+      recurse:    false
+      replace:    false
+      mode:       '0775'
+      owner:      'wls'
+      group:      'dba'
+
+file_persistence_store_instances:
+  'jmsFile1':
+    ensure:         'present'
+    directory:      'persistence1'
+    target:
+      - 'wlsServer1'
+    targettype:
+      - 'Server'
+    require:
+      - Wls_server[wlsServer1]
+      - File[/opt/oracle/wlsdomains/domains/Wls1036/persistence1]
+  'jmsFile2':
+    ensure:         'present'
+    directory:      'persistence2'
+    target:
+      - 'wlsServer2'
+    targettype:
+      - 'Server'
+    require:
+      - Wls_server[wlsServer2]
+      - File[/opt/oracle/wlsdomains/domains/Wls1036/persistence2]
+
+
+jmsserver_instances:
+  'jmsServer1':
+     ensure:              'present'
+     target:
+       - 'wlsServer1'
+     targettype:
+       - 'Server'
+     persistentstore:     'jmsFile1'
+     persistentstoretype: 'FileStore'
+     require:
+       - Wls_server[wlsServer1]
+       - Wls_file_persistence_store[jmsFile1]
+  'jmsServer2':
+     ensure:              'present'
+     target:
+       - 'wlsServer2'
+     targettype:
+       - 'Server'
+     require:             Wls_server[wlsServer2]
+
+
+jms_module_instances:
+   'jmsClusterModule':
+     ensure:      'present'
+     target:
+       - 'WebCluster'
+     targettype:
+       - 'Cluster'
+     require:     Wls_cluster[WebCluster]
+
+jms_subdeployment_instances:
+   'jmsClusterModule:jmsServers':
+      ensure:     'present'
+      target:
+        - 'jmsServer1'
+        - 'jmsServer2'
+      targettype:
+        - 'JMSServer'
+        - 'JMSServer'
+      require:
+        - Wls_jms_module[jmsClusterModule]
+        - Wls_jmsserver[jmsServer1]
+        - Wls_jmsserver[jmsServer2]
+   'jmsClusterModule:wlsServers':
+      ensure:     'present'
+      target:
+        - 'WebCluster'
+      targettype:
+        - 'Cluster'
+      require:
+        - Wls_jms_module[jmsClusterModule]
+        - Wls_cluster[WebCluster]
+
+jms_connection_factory_instances:
+  'jmsClusterModule:cf':
+    ensure:             'present'
+    jmsmodule:          'jmsClusterModule'
+    defaulttargeting:   '0'
+    jndiname:           'jms/cf'
+    subdeployment:      'wlsServers'
+    transactiontimeout: '3600'
+    xaenabled:          '0'
+    require:
+      - Wls_jms_module[jmsClusterModule]
+      - Wls_jms_subdeployment[jmsClusterModule:wlsServers]
+  'jmsClusterModule:cf2':
+    ensure:             'present'
+    jmsmodule:          'jmsClusterModule'
+    defaulttargeting:   '1'
+    jndiname:           'jms/cf2'
+    transactiontimeout: '3600'
+    xaenabled:          '1'
+    require:            Wls_jms_module[jmsClusterModule]
+
+jms_queue_instances:
+   'jmsClusterModule:ErrorQueue':
+     ensure:                   'present'
+     distributed:              '1'
+     expirationpolicy:         'Discard'
+     jndiname:                 'jms/ErrorQueue'
+     redeliverydelay:          '-1'
+     redeliverylimit:          '-1'
+     subdeployment:            'jmsServers'
+     defaulttargeting:         '0'
+     timetodeliver:            '-1'
+     timetolive:               '-1'
+     require:
+       - Wls_jms_module[jmsClusterModule]
+       - Wls_jms_subdeployment[jmsClusterModule:jmsServers]
+   'jmsClusterModule:Queue1':
+     ensure:                   'present'
+     distributed:              '1'
+     errordestination:         'ErrorQueue'
+     expirationpolicy:         'Redirect'
+     jndiname:                 'jms/Queue1'
+     redeliverydelay:          '2000'
+     redeliverylimit:          '3'
+     subdeployment:            'jmsServers'
+     defaulttargeting:         '0'
+     timetodeliver:            '-1'
+     timetolive:               '300000'
+     require:
+       - Wls_jms_module[jmsClusterModule]
+       - Wls_jms_subdeployment[jmsClusterModule:jmsServers]
+       - Wls_jms_queue[jmsClusterModule:ErrorQueue]
+   'jmsClusterModule:Queue2':
+     ensure:                   'present'
+     distributed:              '1'
+     expirationloggingpolicy:  '%header%%properties%'
+     expirationpolicy:         'Log'
+     jndiname:                 'jms/Queue2'
+     redeliverydelay:          '2000'
+     redeliverylimit:          '3'
+     subdeployment:            'jmsServers'
+     defaulttargeting:         '0'
+     timetodeliver:            '-1'
+     timetolive:               '300000'
+     require:
+       - Wls_jms_module[jmsClusterModule]
+       - Wls_jms_subdeployment[jmsClusterModule:jmsServers]
+
+
+jms_topic_instances:
+   'jmsClusterModule:Topic1':
+     ensure:            'present'
+     defaulttargeting:  '0'
+     distributed:       '1'
+     expirationpolicy:  'Discard'
+     jndiname:          'jms/Topic1'
+     redeliverydelay:   '2000'
+     redeliverylimit:   '2'
+     subdeployment:     'jmsServers'
+     timetodeliver:     '-1'
+     timetolive:        '300000'
+     require:
+       - Wls_jms_module[jmsClusterModule]
+       - Wls_jms_subdeployment[jmsClusterModule:jmsServers]
+
 

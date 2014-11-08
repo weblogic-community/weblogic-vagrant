@@ -1,26 +1,31 @@
 ---
 messageEnv: 'node1'
 
-orawls::weblogic::log_output:   true
+logoutput:                      &logoutput          true
+orawls::weblogic::log_output:   *logoutput
 
-
-logoutput:                     &logoutput                     true
-
+wls_os_user:              &wls_os_user              "wls"
+wls_os_group:             &wls_os_group             "dba"
+wls_weblogic_user:        &wls_weblogic_user        "weblogic"
+wls_weblogic_home_dir:    &wls_weblogic_home_dir    "/opt/oracle/middleware11g/wlserver_10.3"
+wls_middleware_home_dir:  &wls_middleware_home_dir  "/opt/oracle/middleware11g"
 
 # when you have just one domain on a server
-domain_name:                "Wls1036"
-domain_adminserver:         "AdminServer"
-domain_adminserver_address: "10.10.10.10"
-domain_adminserver_port:    7001
-domain_nodemanager_port:    5556
-domain_wls_password:        "weblogic1"
-domain_user_config_file:    "/home/oracle/oracle-Wls1036-WebLogicConfig.properties"
-domain_user_key_file:       "/home/oracle/oracle-Wls1036-WebLogicKey.properties"
+domain_name:                &domain_name                "Wls1036"
+domain_adminserver:         &domain_adminserver         "AdminServer"
+domain_adminserver_address: &domain_adminserver_address "10.10.10.10"
+domain_adminserver_port:    &domain_adminserver_port    7001
+domain_nodemanager_port:    &domain_nodemanager_port    5556
+domain_wls_password:        &domain_wls_password        "weblogic1"
 
+orautils::osDomainParam:          *domain_name
+orautils::osDomainPathParam:      "/opt/oracle/wlsdomains/domains/Wls1036"
+orautils::nodeMgrPathParam:       "/opt/oracle/middleware11g/wlserver_10.3/server/bin"
+orautils::nodeMgrAddressParam:    *domain_adminserver_address
+orautils::wlsPasswordParam:       *domain_wls_password
+orautils::wlsAdminServerParam:    *domain_adminserver
 
-# create a standard domain
-domain_instances:
-
+orautils::nodeMgrAddressParam:    "10.10.10.100"
 
 # copy domains to other nodes
 copy_instances:
@@ -30,6 +35,5 @@ copy_instances:
 # create and startup the nodemanager
 nodemanager_instances:
   'nodemanager':
-     log_output:           *logoutput
-     nodemanager_address:  "10.10.10.100"
-
+    log_output:                            *logoutput
+    nodemanager_address:                   "10.10.10.100"

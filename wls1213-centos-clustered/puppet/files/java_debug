@@ -1,0 +1,40 @@
+#! /bin/bash
+
+LOG_DIR=/tmp/log_puppet_weblogic
+LOG_FILE=$LOG_DIR/log.txt
+echo "+++++++++++++++++++++++++++++"  | tee -a $LOG_FILE
+echo "+++ EXECUTING JAVA. CMD: java" "$@"  | tee -a $LOG_FILE
+
+java=$(readlink -f $0)
+echo "+++ EXECUTING JAVA. time: "`date +"%Y%m%d-%H%M%S"` | tee -a $LOG_FILE
+echo "+++ EXECUTING JAVA. java: $java"  | tee -a $LOG_FILE
+echo "+++ EXECUTING JAVA. cp: $CLASSPATH"  | tee -a $LOG_FILE
+echo "+++ EXECUTING JAVA. user: `whoami`"  | tee -a $LOG_FILE
+
+for arg; do
+#  if [[ ${arg: -3} == ".py" ]] || [[ ${arg: -4} == ".xml" ]]; then
+  if [[ ${arg: -3} == ".py" ]]; then
+    echo "+++ EXECUTING JAVA. cat $arg. START."  | tee -a $LOG_FILE
+    cat $arg  | tee -a $LOG_FILE
+    echo "+++ EXECUTING JAVA. cat $arg. END."  | tee -a $LOG_FILE
+    f=file-$(basename $arg)-$(date +"%Y%m%d-%H%M%S")
+    cp $arg $LOG_DIR/$f
+  fi
+done
+
+f=$LOG_DIR/log-$(date +"%Y%m%d-%H%M%S").txt
+echo "+++ EXECUTING JAVA. running. log: $f"  | tee -a $LOG_FILE
+original_java=${java}_
+set -e
+(($original_java "$@") 2>&1 ) | tee $f
+
+EXIT_CODE=${PIPESTATUS[0]}
+
+echo "+++ EXECUTING JAVA. cat $f. START."  | tee -a $LOG_FILE
+cat $f | tee -a $LOG_FILE
+echo "+++ EXECUTING JAVA. cat $f. END."  | tee -a $LOG_FILE
+
+echo "+++ EXECUTING JAVA. exit code: $EXIT_CODE" | tee -a $LOG_FILE
+echo "+++ EXECUTING JAVA. END."  | tee -a $LOG_FILE
+
+exit $EXIT_CODE
