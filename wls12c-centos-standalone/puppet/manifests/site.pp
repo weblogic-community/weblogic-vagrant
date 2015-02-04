@@ -6,8 +6,8 @@
 #
 
 node 'vagrantcentos64' {
-  
-   include os2, wls12, wls12c_domain, orautils
+
+   include os2, wls12, wls12c_domain
    Class['os2']  -> Class['wls12'] -> Class['wls12c_domain'] -> Class['orautils']
 }
 
@@ -24,9 +24,9 @@ class os2 {
   include jdk7
 
   jdk7::install7{ 'jdk1.7.0_51':
-      version              => "7u51" , 
+      version              => "7u51" ,
       fullVersion          => "jdk1.7.0_51",
-      alternativesPriority => 18000, 
+      alternativesPriority => 18000,
       x64                  => true,
       downloadDir          => "/data/install",
       urandomJavaFix       => true,
@@ -64,7 +64,7 @@ class os2 {
   sysctl { 'net.core.wmem_max':             ensure => 'present', permanent => 'yes', value => '1048576',}
 
   # create a swapfile and it to fstab
-  
+
   exec { "create swap file":
     command => "/bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=8192",
     creates => "/var/swap.1",
@@ -83,10 +83,10 @@ class os2 {
     user => root,
     unless => "/bin/grep '^/var/swap.1' /etc/fstab 2>/dev/null",
   }
-  
-  
+
+
   # turn off iptables
-  
+
   service { iptables:
         enable    => false,
         ensure    => false,
@@ -113,13 +113,13 @@ class wls12{
     version                => '1212',
     mdwHome                => $osMdwHome,
     oracleHome             => $osOracleHome,
-    fullJDKName            => $jdkWls12cJDK, 
+    fullJDKName            => $jdkWls12cJDK,
     user                   => $user,
-    group                  => $group,   
+    group                  => $group,
     downloadDir            => $downloadDir,
-    puppetDownloadMntPoint => $puppetDownloadMntPoint, 
+    puppetDownloadMntPoint => $puppetDownloadMntPoint,
   }
-} 
+}
 
 
 class wls12c_domain{
@@ -140,7 +140,7 @@ class wls12c_domain{
   $user         = "oracle"
   $group        = "dba"
   $downloadDir  = "/data/install"
-  $logDir       = "/data/logs" 
+  $logDir       = "/data/logs"
 
   $userConfigDir = '/home/oracle'
 
@@ -149,10 +149,10 @@ class wls12c_domain{
     version         => "1212",
     wlHome          => $osWlHome,
     mdwHome         => $osMdwHome,
-    fullJDKName     => $jdkWls12gJDK,  
+    fullJDKName     => $jdkWls12gJDK,
     user            => $user,
-    group           => $group,    
-    downloadDir     => $downloadDir, 
+    group           => $group,
+    downloadDir     => $downloadDir,
     wlsTemplate     => $osTemplate,
     domain          => $wlsDomainName,
     adminListenPort => $adminListenPort,
@@ -164,24 +164,24 @@ class wls12c_domain{
 
   Wls::Nodemanager {
     wlHome       => $osWlHome,
-    fullJDKName  => $jdkWls12gJDK,  
+    fullJDKName  => $jdkWls12gJDK,
     user         => $user,
     group        => $group,
-    serviceName  => $serviceName,  
+    serviceName  => $serviceName,
   }
 
-  #nodemanager starting 
+  #nodemanager starting
   # in 12c start it after domain creation
   wls::nodemanager{'nodemanager12c':
     version    => "1212",
     listenPort => $nodemanagerPort,
-    domain     => $wlsDomainName,     
+    domain     => $wlsDomainName,
     require    => Wls::Wlsdomain['wlsDomain12c'],
   }
- 
+
   orautils::nodemanagerautostart{"autostart ${wlsDomainName}":
     version     => "1212",
-    wlHome      => $osWlHome, 
+    wlHome      => $osWlHome,
     user        => $user,
     domain      => $wlsDomainName,
     logDir      => $logDir,
@@ -195,7 +195,7 @@ class wls12c_domain{
     wlsServer     => "AdminServer",
     action        => 'start',
     wlHome        => $osWlHome,
-    fullJDKName   => $jdkWls12gJDK,  
+    fullJDKName   => $jdkWls12gJDK,
     wlsUser       => "weblogic",
     password      => "welcome1",
     address       => $address,
@@ -203,7 +203,7 @@ class wls12c_domain{
     user          => $user,
     group         => $group,
     downloadDir   => $downloadDir,
-    logOutput     => true, 
+    logOutput     => true,
     require       => Wls::Nodemanager['nodemanager12c'],
   }
 
