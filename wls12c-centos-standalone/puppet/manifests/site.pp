@@ -5,7 +5,7 @@
 # needs jdk7, wls, orautils, fiddyspence-sysctl, erwbgy-limits puppet modules
 #
 
-node 'vagrantcentos64' {
+node 'vagrantcentos66' {
   
    include os2, wls12, wls12c_domain, orautils
    Class['os2']  -> Class['wls12'] -> Class['wls12c_domain'] -> Class['orautils']
@@ -23,9 +23,9 @@ class os2 {
 
   include jdk7
 
-  jdk7::install7{ 'jdk1.7.0_51':
+  jdk7::install7{ 'jdk1.7.0_75':
       version              => "7u51" , 
-      fullVersion          => "jdk1.7.0_51",
+      fullVersion          => "jdk1.7.0_75",
       alternativesPriority => 18000, 
       x64                  => true,
       downloadDir          => "/data/install",
@@ -98,7 +98,7 @@ class os2 {
 
 class wls12{
 
-  $jdkWls12cJDK = 'jdk1.7.0_51'
+  $jdkWls12cJDK = 'jdk1.7.0_75'
 
   $osOracleHome    = "/oracle"
   $osMdwHome       = "/oracle/product/Middleware12c"
@@ -124,7 +124,7 @@ class wls12{
 
 class wls12c_domain{
 
-  $jdkWls12gJDK    = 'jdk1.7.0_51'
+  $jdkWls12gJDK    = 'jdk1.7.0_75'
 
   $wlsDomainName   = "Wls12c"
   $osTemplate      = "standard"
