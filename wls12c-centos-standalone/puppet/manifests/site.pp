@@ -24,7 +24,7 @@ class os2 {
   include jdk7
 
   jdk7::install7{ 'jdk1.7.0_75':
-      version              => "7u51" , 
+      version              => "7u75" , 
       fullVersion          => "jdk1.7.0_75",
       alternativesPriority => 18000, 
       x64                  => true,
