@@ -43,7 +43,10 @@ define wls::installwls( $version     = undef,
 
    $wls1212Parameter     = "1212"
    $wlsFile1212          = "wls_121200.jar"
-
+   
+   $wls1213Parameter     = "1213"
+   $wlsFile1213          = "fmw_12.1.3.0.0_wls.jar"
+   
    $wls1211Parameter     = "1211"
    $wlsFile1211          = "wls1211_generic.jar"
 
@@ -112,8 +115,6 @@ define wls::installwls( $version     = undef,
       }
    }
 
-
-
     # check weblogic version like 12c
     if $version == undef {
       $wlsFile    =  $wlsFileDefault
@@ -121,8 +122,11 @@ define wls::installwls( $version     = undef,
     elsif $version == $wls1211Parameter  {
       $wlsFile    =  $wlsFile1211
     }
-    elsif $version == $wls1212Parameter  {
+	elsif $version == $wls1212Parameter  {
       $wlsFile    =  $wlsFile1212
+	 } 
+    elsif $version == $wls1213Parameter  {
+      $wlsFile    =  $wlsFile1213
     }
     elsif $version == $wls1036Parameter  {
       $wlsFile    =  $wlsFile1036
@@ -171,7 +175,60 @@ if ( $continue ) {
      backup  => false,
    }
 
-    if $version == $wls1212Parameter  {
+    if $version == $wls1213Parameter  {
+
+       wls::utils::orainst{'create wls oraInst':
+            oraInventory    => $oraInventory,
+            group           => $group,
+       }
+
+		   # de xml used by the wls installer
+		   file { "silent.xml ${version}":
+		     path    => "${path}/silent${version}.xml",
+		     ensure  => present,
+		     replace => 'yes',
+		     content => template("wls/silent_${wls1213Parameter}.xml.erb"),
+		     require => [ Wls::Utils::Orainst ['create wls oraInst']],
+		   }
+
+       $command  = "-silent -responseFile ${path}/silent${version}.xml "
+
+		   case $operatingsystem {
+		     CentOS, RedHat, OracleLinux, Ubuntu, Debian, SLES: {
+		        exec { "install wls ${title}":
+		          command     => "java -jar ${path}/${wlsFile} ${command} -invPtrLoc /etc/oraInst.loc -ignoreSysPrereqs",
+		          require     => [Wls::Utils::Defaultusersfolders['create wls home'],File ["silent.xml ${version}"]],
+		          timeout     => 0,
+		        }
+		     }
+		     Solaris: {
+		        exec { "install wls ${title}":
+		          command     => "java -jar ${path}/${wlsFile} ${command} -invPtrLoc /var/opt/oraInst.loc -ignoreSysPrereqs",
+		          require     => [Wls::Utils::Defaultusersfolders['create wls home'],File ["silent.xml ${version}"]],
+		          timeout     => 0,
+		        }
+		     }
+		
+		     windows: {
+		
+		        exec {"icacls wls disk ${title}":
+		           command    => "${checkCommand} icacls ${path}\\${wlsFile} /T /C /grant Administrator:F Administrators:F",
+		           logoutput  => false,
+		           require    => File["wls.jar ${version}"],
+		        }
+		
+		        exec { "install wls ${title}":
+		          command     => "${checkCommand} java -jar ${path}/${wlsFile}  ${command} -ignoreSysPrereqs",
+		          logoutput   => true,
+		          require     => [Wls::Utils::Defaultusersfolders['create wls home'],Exec["icacls wls disk ${title}"],File ["silent.xml ${version}"]],
+		          timeout     => 0,
+		        }
+		
+		     }
+		   }
+
+    }
+    elsif $version == $wls1212Parameter  {
 
        wls::utils::orainst{'create wls oraInst':
             oraInventory    => $oraInventory,
