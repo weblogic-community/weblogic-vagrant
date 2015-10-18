@@ -110,7 +110,7 @@ class wls12{
   $puppetDownloadMntPoint = "/vagrant"
 
   wls::installwls{'wls12c':
-    version                => '1212',
+    version                => '1213',
     mdwHome                => $osMdwHome,
     oracleHome             => $osOracleHome,
     fullJDKName            => $jdkWls12cJDK,
@@ -146,7 +146,7 @@ class wls12c_domain{
 
   # install domain
   wls::wlsdomain{'wlsDomain12c':
-    version         => "1212",
+    version         => "1213",
     wlHome          => $osWlHome,
     mdwHome         => $osMdwHome,
     fullJDKName     => $jdkWls12gJDK,
@@ -180,7 +180,7 @@ class wls12c_domain{
   }
 
   orautils::nodemanagerautostart{"autostart ${wlsDomainName}":
-    version     => "1212",
+    version     => "1213",
     wlHome      => $osWlHome,
     user        => $user,
     domain      => $wlsDomainName,
